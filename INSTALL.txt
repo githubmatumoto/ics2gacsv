@@ -1,0 +1,55 @@
+                 　　　ICS to CSV コンバータ
+                         インストール手順書
+
+                                                         2025/9/24
+                                                          by 松元隆二
+
+はじめにREADME.txtを読んでください。
+
+*確認環境
+
+- Ubuntu22.04.5LTS/日本語環境
+  OS付属Python
+
+  $ python --version
+  Python 3.10.12
+  
+- Windows11Pro /日本語環境
+  MicrosoftStore版Python
+
+  > python --versio
+  Python 3.10.11
+
+** もしかしたら動くかもしれない環境
+- AlmaLinux8.10/日本語環境
+  OS付属Python
+
+  $ python3 --version
+  Python 3.11.13
+
+*依存ライブラリのインストール。
+
+ライブラリvOBjectを利用してます。バージョンは0.99で動作確認しています。
+
+Ref: https://vobject.readthedocs.io/latest/  
+     https://py-vobject.github.io/
+
+コマンドpipもしくはpip3でインストールできますが、pythonが複数導入され
+ている環境では使用すると同じpython用のpipを使うようにしてください。
+
+  $ pip install vobject
+  (もしくは)
+  $ pip3 install vobject  
+
+*ics2gacsvのインストール
+ここからファイル「ics2gacsv.py」「libics2gacsv.py」をダウンロードして適
+当なフォルダに置いてください。
+
+下記コマンドでエラーなく起動するか確認ください。
+
+  $ python ics2gacsv.py -h
+   (もしくは)
+  $ python3 ics2gacsv.py -h  
+
+ヘルプメッセージが出力されます。
+                                                              以上です。
