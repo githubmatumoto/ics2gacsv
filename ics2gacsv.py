@@ -7,7 +7,7 @@ import getopt
 import re
 import libics2gacsv
 
-__doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はガルーンと同じ。
+__doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと同じ。
 
 usage:  {sys.argv[0]} [-hubstodpm] 期間指定 入力.ics 出力.csv
 

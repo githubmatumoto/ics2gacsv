@@ -17,7 +17,7 @@
 - Windows11Pro /日本語環境
   MicrosoftStore版Python
 
-  > python --versio
+  > python --version
   Python 3.10.11
 
 ** もしかしたら動くかもしれない環境
@@ -28,8 +28,9 @@
   Python 3.11.13
 
 *依存ライブラリのインストール。
+ライブラリ vobjectを使わせていただいてます。バージョンは0.99で動作確認
+しています。
 
-ライブラリvOBjectを利用してます。バージョンは0.99で動作確認しています。
 
 Ref: https://vobject.readthedocs.io/latest/  
      https://py-vobject.github.io/
