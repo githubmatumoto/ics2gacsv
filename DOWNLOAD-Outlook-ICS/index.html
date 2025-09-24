@@ -1,0 +1,124 @@
+<HTML>
+  <HEAD>
+    <TITLE>Webブラウザ版のOutlookのスケジュールをICS形式でダウンロードする方法</TITLE>
+  </HEAD>
+  <BODY>
+    <CENTER><H1>Webブラウザ版のOutlookのスケジュールをICS形式でダウンロードする方法</H1></CENTER>
+    <CENTER>2025/9/24</CENTER>
+    <CENTER>by 松元隆二</CENTER>
+
+    <HR>
+
+<H3>はじめに</H3>
+Webブラウザ版のOutlookのスケジュールをICS形式でダウンロードする手順書
+になります。別途提供するICSファイルをGaroon形式のCSVに変換するプログラ
+ムの資料の一部になります。<P>
+
+Webブラウザ版のOutlookの2025/9/24現在の画面構成にそって解説しています。
+本資料は職場向けの資料とブログ用の資料をまとめて作成してますので、
+記入例は職場の指定書式ですので、ブログ閲覧者は気にしないでください。
+<P>
+
+<H3>スケジュール記入</H3>
+ダウンロードを試す前にWeb版Outlookに数日分のスケジュールをいれてくださ
+い。<P>
+
+こんな感じで数点いれてください。メモ欄は可能ならプレインテキストでいれ
+てください。Garoon形式のCSVに変換した時にうまく情報が読めない可能性あ
+ります。また色々彩りを加えると行頭に無駄な空行が入り、CSVへの変換時に
+失敗する事が多いようです。<P>
+
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export1.png" width="75%"><P>
+</BLOCKQUOTE>
+
+数件いれていただければと思います。
+
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export2.png" width="75%"><P>
+</BLOCKQUOTE>
+
+※私用を記載してる方は、業務記録で提出するときに私用を消すのを忘れない
+ように(汗)<P>
+
+<H3>ICSファイルとしてダウンロード</H3>      
+
+Webブラウザの画面右上の「。。。」をクリックすると設定があります。
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export3.png" width="75%"><P>
+</BLOCKQUOTE>
+
+設定で「予定表」→「共有予定表」→「予定表を公開する」を選んでください。
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export4.png" width="75%"><P>
+</BLOCKQUOTE>
+
+以下のような感じで選んでください。スケジュール表の名前は「予定表」以外
+の場合もあります。資料では公開項目は「すべての詳細を閲覧可能」を選んで
+いますが、他の設定は試していません。選択後、「公開」をクリックしてください。
+
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export5.png" width="75%"><P>
+</BLOCKQUOTE>
+
+予定表の公開用のURLが設定されます。
+
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export6.png" width="75%"><P>
+</BLOCKQUOTE>
+
+ICSのところのURLの文字列をクリックすると下記の選択肢がでますので、「ダウンロード」を選んでください。
+
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export7.png" width="75%"><P>
+</BLOCKQUOTE>
+
+
+スケジュール表が「calendar.ics」というファイル名でダウンロードできます。
+<P>
+
+
+ダウンロードが終わったら「公開取り消し」をクリックしてください。
+
+<BLOCKQUOTE>
+  <IMG BORDER=3 SRC="outlook-web-ics-export8.png" width="75%"><P>
+</BLOCKQUOTE>
+
+ダウンロード手順は以上です。
+
+<HR>
+
+<H3>補足</H3>
+
+ファイルcalendar.icsはプレインテキストですので、テキストエディタで閲覧
+できます。個々のスケジュールは「BEGIN:VEVENT」「END:VEVENT」でくくられ
+ています。先ほど入力したスケジュールは以下のような形で出力されています。
+行の先頭に空白があれば継続行とみなされます。文字コードはUTF-8になって
+います。
+
+<BLOCKQUOTE>
+<PRE>
+BEGIN:VEVENT
+DESCRIPTION:1234(業務番号)\n\n業務内容。この枠内は可能な
+ らプレインテキストで入れてください。\n
+UID:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+SUMMARY:出張:東京特許許可局
+DTSTART;TZID=Tokyo Standard Time:20251010T130000
+DTEND;TZID=Tokyo Standard Time:20251010T160000
+CLASS:PUBLIC
+PRIORITY:5
+DTSTAMP:20250924T030059Z
+(省略)
+END:VEVENT
+</BLOCKQUOTE>
+</PRE>
+
+このファイル形式はCSV等とはことなり、手作業で書き換えするのは少々困難
+です。またこれまでの手順でスケジュールの出力する期間の指定は行ってませ
+んが、指定ができません。そのため、業務記録として特定の期間のデータを取
+り出すのは、なんらかの支援ツールを使っていただいた方がよいかと思います。
+<P>
+
+以上です。
+  </BODY>
+</HTML>
