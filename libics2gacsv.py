@@ -30,7 +30,7 @@ def get_ics_val(ics_parts, name, default_val=None):
     vobjectのicsの要素を取り出す。
 
     引数:
-    ics_parts: icsのcomponetオブジェクト。
+    ics_parts: ICSをよみこんだvobjectのcomponetオブジェクト。
     name: 取り出す要素。例えば(summaryとかdtstartなど)
     default_val: nameで指定した要素が存在しない場合に返す値。
                  もしここにNoneを指定したときにnameで指定した
@@ -41,9 +41,9 @@ def get_ics_val(ics_parts, name, default_val=None):
         return getattr(ics_parts, name, default_val).valueRepr()
 
     if default_val is None:
-        print(f"不適切なiCalendarファイルです。必須パラメータがありません: {name}")
+        print(f"不適切なICSファイルです。必須パラメータがありません: {name}")
         ics_parts.prettyPrint()
-        raise RuntimeError("不適切なiCalendarファイルです。")
+        raise RuntimeError("不適切なICSファイルです。")
     return default_val
 
 #########################################################################
@@ -87,19 +87,19 @@ def format_check_timerange(timerange:int) -> bool:
     return True
 
 #########################################################################
-def is_collect_timerange(ical_time, timerange:int)->bool:
+def is_collect_timerange(ics_time, timerange:int)->bool:
     """
     引数:
-    ical_time: datetime.datetime型もしくはdatetime.date型
+    ics_time: datetime.datetime型もしくはdatetime.date型
     timerange: CSVの出力範囲を指定するtimerangeの値。
     """
     #print(f"DEBUG: timerange = {timerange}")
-    #print(f"DEBUG: ical_time.year = {ical_time.year}")
-    #print(f"DEBUG: ical_time.month = {ical_time.month}")
+    #print(f"DEBUG: ics_time.year = {ics_time.year}")
+    #print(f"DEBUG: ics_time.month = {ics_time.month}")
     if timerange == 0:
         return True
 
-    if(ical_time.year == timerange//100) and (ical_time.month == timerange%100):
+    if(ics_time.year == timerange//100) and (ics_time.month == timerange%100):
         return True
 
     return False
@@ -186,7 +186,7 @@ EXDATE関連を修正する。
             if not re.fullmatch('20[\d]{6}T0{6}', exdate_tail[i]):
                 return data
 
-    # 各icalendarの出力元別の処理。
+    # 各ICSの出力アプリ別の処理。
     if re.fullmatch('EXDATE', exdate[0]) and (not re.search('T', exdate[1])):
         #print(f"DEBUG exdate[1] = : {exdate[1]}")
         # maybe Garoon. 時間情報なし。
@@ -212,7 +212,7 @@ EXDATE関連を修正する。
         data[flag_exdate] = concat_exdate(exdate[0], exdate_tail)
         return data
 
-    # 修正の必要がない。もしくは想定してない仕様のicalendar
+    # 修正の必要がない。もしくは想定してない仕様のICS
     return data
 ####
 
@@ -300,10 +300,10 @@ UNTIL関連を修正する。
 ####
 
 def bug_fix_rrule(data:str) -> str:
-    """EXDATE関連のbugfix。icalendarのファイルをすべて読み込んだ
+    """EXDATE関連のbugfix。ICSのファイルをすべて読み込んだ
 string型のdataを渡して、修正して返却する。
 
-RRULEのEXDATEとUNTILのバグを回避するため、vObjectの関数にicsを読み込ま
+RRULEのEXDATEとUNTILのバグを回避するため、vObjectの関数にICSを読み込ま
 せる前に修正作業を行います。
 
 バグの詳細については TECH-MEMO.txt 参照ください。
@@ -410,7 +410,7 @@ def hava_timezone(t) -> bool:
     return hasattr(t, "tzinfo")
 ##
 
-def ics_time_to_csv(ical_parts, rrule_start=None):
+def ics_time_to_csv(ics_parts, rrule_start=None):
     """
     返り値:
     タプルで文字列４つ
@@ -424,9 +424,9 @@ def ics_time_to_csv(ical_parts, rrule_start=None):
       "2025/09/05","","2025/09/06","" (2日間の通日日程)
 
    引数:
-    start: icsデータのDTSTART(datetime.datetime型もしくはdatetime.date型)
+    start: ICSデータのDTSTART(datetime.datetime型もしくはdatetime.date型)
 
-    end:   icsデータのDTEND(datetime.datetime型もしくはdatetime.date型)
+    end:   ICSデータのDTEND(datetime.datetime型もしくはdatetime.date型)
 
    外部制御変数:
     flag_remove_timezone: Bool型
@@ -457,8 +457,8 @@ def ics_time_to_csv(ical_parts, rrule_start=None):
             "2025/09/11", "", "2025/09/11", ""
 
 """
-    start = get_ics_val(ical_parts, 'dtstart')
-    end = get_ics_val(ical_parts, 'dtend')
+    start = get_ics_val(ics_parts, 'dtstart')
+    end = get_ics_val(ics_parts, 'dtend')
 
     if False:
         print(f"DEBUG: rrule_start = {rrule_start}")
@@ -622,11 +622,11 @@ def modify_description(description:str) -> str:
 
     return description
 
-def csv_oneline_write(csv_stream, ical_parts, rrule_start=None):
+def csv_oneline_write(csv_stream, ics_parts, rrule_start=None):
     """内部関数"""
     row = []
 
-    s_d, s_t, e_d, e_t = ics_time_to_csv(ical_parts, rrule_start)
+    s_d, s_t, e_d, e_t = ics_time_to_csv(ics_parts, rrule_start)
 
     row.append(s_d) # "開始日"
     row.append(s_t) # "開始時刻"
@@ -636,18 +636,18 @@ def csv_oneline_write(csv_stream, ical_parts, rrule_start=None):
     #予定(選択肢のところ)
     summary_h = ""
     #予定本文
-    summary_t = get_ics_val(ical_parts, 'summary', 'N/A')
+    summary_t = get_ics_val(ics_parts, 'summary', 'N/A')
     #print(f"DEBUG: summary = {summary_t}")
-    #ical_parts.prettyPrint()
+    #ics_parts.prettyPrint()
 
     if flag_split_summary:
-        #ics形式の場合は予定(選択肢のところ)が無いので生成試みる
+        #ICS形式の場合は予定(選択肢のところ)が無いので生成試みる
         summary_h, summary_t =  split_garoon_style_summary(summary_t)
 
     row.append(summary_h) # 予定(選択肢のところ)
     row.append(summary_t) # 予定本文
 
-    description = modify_description(get_ics_val(ical_parts, 'description', ''))
+    description = modify_description(get_ics_val(ics_parts, 'description', ''))
     row.append(description) # メモ
 
     csv_stream.writerow(row)
@@ -677,10 +677,10 @@ flag_print_csv_header = False
 
 def ics2csv(ics_file_path:str, csv_file_path:str, timerange:int=0):
     """
-    iCalendar(ics)ファイルをCSVファイルに変換する。
+    ICS(iCalendar)ファイルをCSVファイルに変換する。
 
     引数:
-        ics_file_path (str): 変換元のiCalendar(ics)ファイル。"stdin"を指定すると標準入力。
+        ics_file_path (str): 変換元のICS(iCalendar)ファイル。"stdin"を指定すると標準入力。
         csv_file_path (str): 変換先のCSVファイル。"stdout"を指定すると標準出力。
         timerange (int): CSVに変換する日時を限定する場合は、指定する。
                          2025年8月分がほしい場合は「202508」と指定する。
@@ -737,18 +737,18 @@ def ics2csv(ics_file_path:str, csv_file_path:str, timerange:int=0):
             #print("DEBUG")
             dtstart = get_ics_val(component, 'dtstart')
 
-            # icsのRDATE命令はGaroonやOutlookで出現例を作れなかったため、
+            # ICSのRDATE命令はGaroonやOutlookで出現例を作れなかったため、
             # 未対応。
             if "N/A" != get_ics_val(component, 'rdate', "N/A"):
-                raise RuntimeError("icsデータに未対応の繰り返し命令RDATEが使われています。")
+                raise RuntimeError("ICSデータに未対応の繰り返し命令RDATEが使われています。")
 
-            # icsのRRULE命令が未使用ならそのまま出力する。
+            # ICSのRRULE命令が未使用ならそのまま出力する。
             if "N/A" == get_ics_val(component, 'rrule', "N/A"):
                 if is_collect_timerange(dtstart, timerange):
                     csv_oneline_write(csv_writer, component)
                 continue
 
-            # icsのRRULE命令の処理。
+            # ICSのRRULE命令の処理。
             rrule_set = component.getrruleset(addRDate=True)
             for s in rrule_set:
                 if is_collect_timerange(s, timerange):

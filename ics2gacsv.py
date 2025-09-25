@@ -48,7 +48,7 @@ usage:  {sys.argv[0]} [-hubstodpm] 期間指定 入力.ics 出力.csv
              defaultは表示しない。(Garoonと同じ)
              ※詳細は関数ics_time_to_csv()をみよ。
 
--o         : CSVの出力時刻をWindowsの旧版Outlookが出力する形式にする。
+-o         : CSVの終日日程の出力時刻をWindowsの旧版Outlookが出力する形式にする。
              defaultの時間情報はGaroon形式。
              ※詳細は関数ics_time_to_csv()をみよ。
 
