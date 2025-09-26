@@ -12,7 +12,36 @@ import vobject
 
 __doc__="""補足:
 ソースコードに加えて別途 README.txt および TECH-MEMO.txt　参照ください。
+
+*Cangelog:
+2025/9/24: Version:1.0
+初版公開
+
+*2025/9/25: Version:1.1
+
+変数名等でicalとicsが混ざってたので、icsに統一。
+
+*2025/9/26: Version:1.2
+
+CSVの改行コードの扱いが悪く無駄な空行が入るのを改善。生成される改行コー
+ドについては TECH-MEMO.txt　参照ください。
+
+CSVでダブルクオートで囲まれた文字列の最後に改行が空白があった場合除去
+するコードを追加。
+
+出力文字コードがShiftJISの時にUTF-8からShiftJISに変換する作業に失敗し
+た時のエスケープ手段がstdoutに出力した時とファイルに出力した時で異なっ
+たので、統一。
+
+macOS 13.7.8/Intel/日本語環境動作確認しました。
+
+ライブラリのバージョン管理用の変数を追加しています。
+
+その他用語の統一など行ってます。
 """
+VERSION="1.2"
+
+#######################################
 
 #######################################
 #出力するCSVの文字コード/ホントは改行コードも変更が必要だけ未対応。
@@ -23,6 +52,7 @@ flag_output_sjis = True
 # 試してないが、入力文字コードの変更はこちらが参考になる。
 # Ref: https://techblog.asahi-net.co.jp/entry/2021/10/04/162109
 G_CSV_ENCODING = "shift_jis"
+
 
 #########################################################################
 def get_ics_val(ics_parts, name, default_val=None):
@@ -588,6 +618,8 @@ CSVの"予定詳細":「予定詳細」
 flag_description_delete_4th_line_onwards=False
 # Teamsの会議インフォメーションを消す。パスワードが入ってる。
 flag_remove_teams_infomation = True
+#各要素の最後の改行と空白をすべて取り除く。
+flag_remove_tail_cr = False
 #
 def modify_description(description:str) -> str:
     """
@@ -650,6 +682,11 @@ def csv_oneline_write(csv_stream, ics_parts, rrule_start=None):
     description = modify_description(get_ics_val(ics_parts, 'description', ''))
     row.append(description) # メモ
 
+    #各要素の最後の改行と空白をすべて取り除く。
+    if flag_remove_tail_cr:
+        for i in range(len(row)):
+            row[i] = re.sub('\s+$','',row[i])
+
     csv_stream.writerow(row)
 
 ##########################################################################
@@ -690,6 +727,12 @@ def ics2csv(ics_file_path:str, csv_file_path:str, timerange:int=0):
     """
     ######################
 
+    if vobject.VERSION != "0.9.9":
+        print("ERROR: 依存ライブラリvobjectのバージョンが開発環境と異なります。",file=sys.stderr)
+        print(f"ERROR: githubよりプルリクエストください。 vobject.VERSION={vobject.VERSION}",file=sys.stderr)
+        sys.exit()
+    
+
     if ics_file_path == "stdout" or ics_file_path[0] == "-":
         raise RuntimeError(f"入力ファイル名指定エラー: {ics_file_path}")
 
@@ -717,13 +760,19 @@ def ics2csv(ics_file_path:str, csv_file_path:str, timerange:int=0):
     # Ref: https://docs.python.org/ja/3/howto/unicode.html
     # Ref: https://zenn.dev/hassaku63/articles/f7ca587b86398c
     #
+    #escale_type='backslashreplace'
+    escale_type='xmlcharrefreplace'
     if csv_file_path == "stdout":
         #https://geroforce.hatenablog.com/entry/2018/12/05/114633
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding=G_CSV_ENCODING, errors='backslashreplace')
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding=G_CSV_ENCODING, errors=escale_type, newline="")
         csv_out = sys.stdout
     else:
-        csv_out = open(csv_file_path, 'w', encoding=G_CSV_ENCODING, errors='xmlcharrefreplace')
+        csv_out = open(csv_file_path, 'w', encoding=G_CSV_ENCODING, errors=escale_type, newline="")
 
+    # Pythonライブラリの仕様でCSVの最後の改行はCR+LF。
+    # Ref: https://docs.python.org/ja/3/library/csv.html
+    # ->「Dialect.lineterminator」
+    # -> 「writer が作り出す各行を終端する際に用いられる文字列です。デフォルトでは '\r\n' です。」
     csv_writer = csv.writer(csv_out,quoting=csv.QUOTE_ALL)
 
     #Garoonの出力形式。

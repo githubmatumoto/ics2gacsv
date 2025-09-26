@@ -1,7 +1,10 @@
-                 　　　ICS to CSV コンバータ
-                         インストール手順書
+               　　　ICS to CSV コンバータ
+                            ics2gacsv 
+                      インストール手順書
 
-                                                         2025/9/24
+                                                            2025/9/24
+                                                 (最終更新) 2025/9/26
+							 
                                                           by 松元隆二
 
 はじめにREADME.txtを読んでください。
@@ -9,20 +12,25 @@
 *確認環境
 
 - Ubuntu22.04.5LTS/日本語環境
-  OS付属Python
+  OS付属Pythonで確認しています。
 
   $ python --version
   Python 3.10.12
   
 - Windows11Pro /日本語環境
-  MicrosoftStore版Python
+  MicrosoftStore版Pythonを導入して確認しています。
 
   > python --version
   Python 3.10.11
 
-** もしかしたら動くかもしれない環境
+- macOS 13.7.8/Intel/日本語環境
+  OS付属Pythonで確認しています。
+
+  > python --version
+  Python 3.9.6
+
 - AlmaLinux8.10/日本語環境
-  OS付属Python
+  OS付属Pythonで確認しています。
 
   $ python3 --version
   Python 3.11.13
@@ -31,12 +39,12 @@
 ライブラリ vobjectを使わせていただいてます。バージョンは0.99で動作確認
 しています。
 
-
 Ref: https://vobject.readthedocs.io/latest/  
      https://py-vobject.github.io/
 
 コマンドpipもしくはpip3でインストールできますが、pythonが複数導入され
-ている環境では使用すると同じpython用のpipを使うようにしてください。
+ている環境では本プログラムで使用するpython用のpipを使うようにしてくだ
+さい。
 
   $ pip install vobject
   (もしくは)

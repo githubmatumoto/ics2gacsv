@@ -11,57 +11,65 @@ __doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと
 
 usage:  {sys.argv[0]} [-hubstodpm] 期間指定 入力.ics 出力.csv
 
-期間指定  : CSVの出力年月の期間指定。
+期間指定: CSVの出力年月の期間指定。
 
-           例えば2025年8月分を出力する場合は「202508」と指定する。
-           有効範囲は1970年1月以降「197001」。JSTで指定する。
+	例えば2025年8月分を出力する場合は「202508」と指定する。
+	有効範囲は1970年1月以降「197001」。JSTで指定する。
 
-           「all」もしくは「0」だと全部変換する。
+	「all」もしくは「0」だと全部変換する。
 
-          「guessin」だと入力ファイル名から期間を推測する。
+	「guessin」だと入力ファイル名から期間を推測する。
 
-          「guess」だと出力ファイル名から期間を推測する。例えば出力ファ
-           イル名が「kiroku202509.csv」なら2025年9月と推測する。
+	「guess」だと出力ファイル名から期間を推測する。例えば出力ファ
+	イル名が「kiroku202509.csv」なら2025年9月と推測する。
 
-           年月指定は月を超えてるスケジュールは翌月分も含まれます。例
-           えば11月30日23:00に開始で12月1日02:00に終了の場合は、11月分
-           に12月1日02:00終了のスケジュールが入ります。12月分には入り
-           ません。
+	年月指定は月を超えてるスケジュールは翌月分も含まれます。例
+	えば11月30日23:00に開始で12月1日02:00に終了の場合は、11月分
+	に12月1日02:00終了のスケジュールが入ります。12月分には入り
+	ません。
 
-入力.ics    :　変換元のICSファイル名を指定。「stdin」を指定すると標準入力。
+入力.ics:　変換元のICSファイル名を指定。「stdin」を指定すると標準入力。
+	ICSファイルは規格で文字コードがUTF-8と決まってます。そのため、
+	必ずUTF-8のICSファイルを指定してください。
 
-出力.csv    :　変換先のCSVファイル名を指定。「stdout」を指定すると標準出力。
+出力.csv: 変換先のCSVファイル名を指定。「stdout」を指定すると標準出力。
 
--h         :  ヘルプを出力する。
+-h	: ヘルプを出力する。
 
--u         :  CSV出力をUTF-8にする。defaultはShiftJIS。(Garoonと同じ)
+-u	: CSV出力をUTF-8にする。defaultはShiftJIS。(Garoonと同じ)
 
--b         : RRULE/EXDATEのバグフィックスを無効にする。
-             defaultは有効。
-             ※詳細は関数bug_fix_rrule()をみよ
+以下は滅多に利用しない引数です。開発者向け。
 
--s         : ICSのsummaryの分割を無効にする。defaultは有効。
-             分割するとCSVの「予定」/「予定詳細」がGaroonと同じ形式になる。
-             ※詳細は関数split_garoon_style_summary()をみよ。
+-b	: RRULE/EXDATEのバグフィックスを無効にする。
+	defaultは有効。
+	※詳細は関数bug_fix_rrule()をみよ
 
--t         : CSVの出力時刻にTimeZone情報を表示する。
-             defaultは表示しない。(Garoonと同じ)
-             ※詳細は関数ics_time_to_csv()をみよ。
+-s	: ICSのsummaryの分割を無効にする。defaultは有効。
+	分割するとCSVの「予定」/「予定詳細」がGaroonと同じ形式になる。
+	※詳細は関数split_garoon_style_summary()をみよ。
 
--o         : CSVの終日日程の出力時刻をWindowsの旧版Outlookが出力する形式にする。
-             defaultの時間情報はGaroon形式。
-             ※詳細は関数ics_time_to_csv()をみよ。
+-t	: CSVの出力時刻にTimeZone情報を表示する。
+	defaultは表示しない。(Garoonと同じ)
+	※詳細は関数ics_time_to_csv()をみよ。
 
--d         : メモ欄(description)の4行目以降を消す。
-　　　　　　defaultでは消さない。ただし、後述の「-p」が消す場合がある。
-             ※詳細は関数modify_description()をみよ。
+-o	: CSVの終日日程の出力時刻をWindowsの旧版Outlookが出力する形式にする。
+	defaultの時間情報はGaroon形式。
+	※詳細は関数ics_time_to_csv()をみよ。
 
--p         : Teamsの会議インフォメーションを消さない。
-             defaultでは消す。パスワードが入ってるため。
-             ※詳細は関数modify_description()をみよ。
+-d	: メモ欄(description)の4行目以降を消す。
+　　　　defaultでは消さない。ただし、後述の「-p」が消す場合がある。
+	※詳細は関数modify_description()をみよ。
 
--m         : ICSのsummaryの分割で作者用の修正。defaultは無効。
-             ※詳細は関数ics_time_to_csv()をみよ
+-p	: Teamsの会議インフォメーションを消さない。
+	defaultでは消す。パスワードが入ってるため。
+	※詳細は関数modify_description()をみよ。
+
+-m	: ICSのsummaryの分割で作者用の修正。defaultは無効。
+	※詳細は関数ics_time_to_csv()をみよ
+
+-r	: タイトル(SUMMARY)やメモ欄(description)の最後の改行や空白を除去する。
+	defaultでは除去しない。
+	※詳細は関数modify_description()をみよ。
 """
 
 ########################################
@@ -72,12 +80,17 @@ def myhelp():
     sys.exit()
     
 if __name__ == '__main__':
+    
+    if libics2gacsv.VERSION != "1.2":
+        print("ERROR: ファイルが古いです。最新のics2gacsv.pyとlibics2gacsv.pyをダウンロードしてください。",file=sys.stderr)
+        sys.exit()
+    
     #CSVを出力する期間指定。
     TIMERANGE=0
 
     EXEC_FILENAME=os.path.basename(__file__)
     EXEC_FILENAME = re.sub(r'\.py$', "", EXEC_FILENAME)
-    opts, argv = getopt.getopt(sys.argv[1:], 'ubtsodpmh')
+    opts, argv = getopt.getopt(sys.argv[1:], 'ubtsodpmrh')
 
     try:
         for o, a in opts:
@@ -98,6 +111,8 @@ if __name__ == '__main__':
                 libics2gacsv.flag_remove_teams_infomation = False
             elif o == "-m":
                 libics2gacsv.flag_matumoto_modify = True
+            elif o == "-r":
+                libics2gacsv.flag_remove_tail_cr = True
             elif o == "-h":
                 myhelp()
 

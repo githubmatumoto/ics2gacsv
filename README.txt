@@ -1,13 +1,17 @@
-                 　　　ICS to CSV コンバータ
+            　　　ICS to CSV コンバータ
+                       ics2gacsv 
 
 
-                                                         2025/9/24
+                                                            2025/9/24
+                                                 (最終更新) 2025/9/26
+							 
                                                           by 松元隆二
 
 *はじめに
 
 スケジュールの標準フォーマットであるICS形式(別名iCalendar形式)をCSV形
-式に変換するツールです。
+式に変換するツール「ics2gacsv」です。ICS形式については下記を参照くだ
+さい。
 
 　　https://ja.wikipedia.org/wiki/ICalendar
 
@@ -76,23 +80,32 @@ Web版のOutlookでICS形式でダウンロードの方法は
 
  $ python ics2gacsv.py 期間指定 入力ICSファイル 出力CSVファイル
 
-例:
+実行例:
 DOWNLOAD-Outlook-ICS.pdfを参照の上、ICSファイルをダウンロードし、
 calendar.icsという名前で置いてください。そして下記を実行をすると、
 2025年9月分のスケジュールをkiroku202509.csvに出力します。
 
  $ python ics2gacsv.py 202509 calendar.ics kiroku202509.csv
 
-Web版のOutlookが生成するICSファイルは出力する範囲の指定ができません。
-しかし業務記録簿としては生成するCSVの日付の範囲の指定が必要になります。
-そのため、年と月を指定する引数を必須としています。
+成功した場合「変換に成功しました: 'calendar.ics' to 'kiroku202509.csv'」
+と表示されます。出力CSVファイルはShiftJISになっています。
 
-引数の詳細については「-h」オプションで確認ください。
+※期間指定の引数は必須になっています。Web版のOutlookが生成するICSファ
+イルは出力する範囲の指定ができません。しかし業務記録簿としては生成する
+CSVの日付の範囲の指定が必要になります。そのため、年と月を指定する引数
+を必須としています。
 
 サンプルでCSVを生成するスクリプトを以下の名前で作成して置いてます。
 
- Linux用:   samplegen.sh
- Windows用: samplegen.bat
+Linux,macOS用: samplegen.sh (Shellスクリプト)
+
+Windows用    : samplegen.bat (Windowsバッチファイル)
+             : samplegen.ps1 (PowerShell)
+
+※セキュリティエラーが出たら中身をコピペして実行ください。
+
+Excelで閲覧や編集する場合は文字コードがShiftJISのファイルを使ってくだ
+さい。その他、引数の詳細については引数「-h」で確認ください。
 
 *ICSとCSVの要素の対応について
 ICSとCSVの要素の対応については
@@ -112,8 +125,8 @@ ICSとCSVの要素の対応については
 ジュールをWeb版のOutlookとCybozu Garoonに記載し、比較調査お願いします。
 
 またCybozu GaroonにはCSV以外にICSを出力する機能があります。GaroonでICS
-を出力し、本プログラムでCSVに変換して、比較していただくのも良いかもし
-れません。
+を出力し、ics2gacsvでCSVに変換して、比較していただくのも良いかもしれま
+せん。
 
 特に
 
