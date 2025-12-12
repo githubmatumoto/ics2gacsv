@@ -1,0 +1,111 @@
+               　　　ICS to CSV コンバータ
+                            ics2gacsv
+                      インストール手順書
+
+                                                            2025/9/24
+                                                (最終更新) 2025/12/11
+
+                                                          by 松元隆二
+
+はじめにREADME.txtを読んでください。
+
+*確認環境
+
+- Ubuntu22.04.5LTS/日本語環境
+  OS付属Pythonで確認しています。
+
+  $ python --version
+  Python 3.10.12
+
+- Windows11Pro /日本語環境
+  MicrosoftStore版Python3.13を導入して確認しています。
+
+  > python3 --version
+  Python 3.13.9
+
+  (2025/11/4追記)以前は3.10で動作確認してましたが、MicrosoftStoreで
+  Python3.10はEOLでダウンロード出来なくなったようですので、3.13に変更
+  しています。
+
+- macOS 26.0.1/ARM/日本語環境
+  (IntelMacは未対応。動作確認機材無いため)
+
+  上記のOS付属Pythonで確認しています。Pythonが入ってない場合はコマンド
+  プロンプトで「python3」と入力すると、OS標準のPythonの入手方法が表示
+  されますので、それにしたがってください。
+
+  % python3 --version
+  Python 3.9.6
+
+- (非対応)AlmaLinux8.10/日本語環境
+  OS付属Pythonは3.6なので動作しません。
+
+  $ python3 --version
+  Python 3.6.8  (OS標準Pythonは非対応)
+
+  OSの特権ユーザ等に相談頂いてPython3.8以降を導入すれば恐らく動作する
+  と思います。
+
+  $ sudo dnf install python3.11
+
+  $ rpm -qf /bin/python3.11
+  python3.11-3.11.13-2.el8_10.x86_64
+
+  $ python3.11 --version
+  Python 3.11.13 (本ソフトウエアが対応するPython)
+
+*依存ライブラリのインストール。
+ライブラリ vobjectを使わせていただいてます。バージョンは0.99で動作確認
+しています。本ライブラリはPython3.8以降対応になります。
+
+Ref: https://vobject.readthedocs.io/latest/
+     https://py-vobject.github.io/
+     https://github.com/py-vobject/vobject/releases
+
+  $ python3 --version (コマンド名はOSによって異なります。)
+  Python 3.9.xx (3.9以上であることを確認する)
+
+**Windows(MicrosoftStore版Python3.13)
+
+コマンドプロンプトでpython3とpip3が3.13であることを確認ください。
+
+  >python3 --version
+  Python 3.13.9
+
+  >pip3 --version
+  pip 25.2 from C:\Program Files\WindowsApps\(省略)\pip (python 3.13)
+
+  >pip3 install vobject
+  (メッセージ省略)
+
+成功したら下記のような表示になります。
+  Successfully installed python-dateutil-2.9.0.post0 pytz-2025.2 six-1.17.0 vobject-0.9.9
+
+**Linux/macOSの設定
+Linux/macOSではvenvの設定がお勧めです。
+
+venv初期設定(コマンド名python3はOSによって異なります)
+  $ python3 -m venv .ics2gacsv --prompt ics2gacsv
+
+venv有効化
+  $ source ~/.ics2gacsv/bin/activate
+
+  $ pip3 install vobject
+  (メッセージ省略)
+
+成功したら下記のような表示になります。
+  Successfully installed python-dateutil-2.9.0.post0 pytz-2025.2 six-1.17.0 vobject-0.9.9
+
+*ics2gacsvのインストール
+ここからファイル「ics2gacsv.py」「libics2gacsv.py」をダウンロードして適
+当なフォルダに置いてください。
+
+(Linux/macOSのみ)venv有効化
+  $ source ~/.ics2gacsv/bin/activate
+
+下記コマンドでエラーなく起動するか確認ください。
+  $ python3 ics2gacsv.py -h
+
+ヘルプメッセージが出力されます。ヘルプの停止は「q」を押してください。
+
+                                                              以上です。
