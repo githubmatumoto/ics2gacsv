@@ -10,7 +10,7 @@ import dateutil
 import vobject
 
 __doc__ = """補足:
-ソースコードに加えて別途 README.txt および TECH-MEMO.txt　参照ください。
+ソースコードに加えて別途 README.txt および misc/TECH-MEMO.txt　参照ください。
 
 *Cangelog:
 2025/9/24: Version:1.0 (公開終了)
@@ -24,7 +24,7 @@ __doc__ = """補足:
 (内部メモ:subversion revision 2070, フォルダv1.2)
 
 CSVの改行コードの扱いが悪く無駄な空行が入るのを改善。生成される改行コー
-ドについては TECH-MEMO.txt　参照ください。
+ドについては misc/TECH-MEMO.txt　参照ください。
 
 CSVでダブルクオートで囲まれた文字列の最後に改行が空白があった場合除去
 するコードを追加。
@@ -535,7 +535,7 @@ string型のdataを渡して、修正して返却する。
 一部のカレンダーアプリケーションが生成するRRULEのEXDATEのバグを回避するため、
 vObjectの関数にICSを読み込ませる前に修正作業を行います。
 
-バグの詳細については TECH-MEMO.txt 参照ください。
+バグの詳細については misc/TECH-MEMO.txt 参照ください。
 
     """
     flag_debug = False
