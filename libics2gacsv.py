@@ -629,7 +629,8 @@ def ics_time_to_csv(ics_parts, rrule_start):
             12:34:55, 12:34:55
 
    flag_remove_am12_time: Bool型
-        Trueを指定すると、終日スケジュール(時刻あり)の時刻情報を除去する。
+        Trueを指定すると、終日スケジュール(時刻あり)の時刻情報を除去し、
+        終日スケジュール内部表現(時刻なし1)とする。
         後述のflag_add_am12_timeと相反する引数だが、flag_add_am12_time
         の方が優先される。
 
@@ -647,6 +648,7 @@ def ics_time_to_csv(ics_parts, rrule_start):
 
     flag_add_am12_time: Bool型
 　　　　Trueを指定すると、終日スケジュール(時刻なし)であっても、
+        終日スケジュール内部表現(時刻あり)とする。
          常に「0:00開始翌日0:00終了」のスケジュールとして出力する。
          前述のflag_remove_am12_timeは無視される。
 
