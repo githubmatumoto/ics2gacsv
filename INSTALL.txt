@@ -71,7 +71,8 @@ Ref: https://vobject.readthedocs.io/latest/
 
 **Windows(MicrosoftStore版Python3.13)
 
-コマンドプロンプトでpython3とpip3がであることを確認ください。
+コマンドプロンプトでpython3/pip3がバージョン3.13以上であることを確認く
+ださい。
 
   >python3 --version
   Python 3.13.9
@@ -79,6 +80,7 @@ Ref: https://vobject.readthedocs.io/latest/
   >pip3 --version
   pip 25.2 from C:\Program Files\WindowsApps\(省略)\pip (python 3.13)
 
+ライブラリのインストール
   >pip3 install vobject
   (メッセージ省略)
 
@@ -87,9 +89,8 @@ Ref: https://vobject.readthedocs.io/latest/
 
 **Linux/macOSの設定
 
-Linux/macOSではvenvの設定がお勧めです。
-
-前述していますが、pythonのバージョンは3.9以上である必要があります。
+Linux/macOSではvenvの設定がお勧めです。前述してるがpythonのバージョン
+は3.9以上である必要があります。
 
 venv初期設定(コマンド名python3はOSによって異なります)
   $ python3 -m venv .ics2gacsv --prompt ics2gacsv
@@ -97,6 +98,7 @@ venv初期設定(コマンド名python3はOSによって異なります)
 venv有効化
   $ source ~/.ics2gacsv/bin/activate
 
+ライブラリのインストール
   $ pip3 install vobject
   (メッセージ省略)
 
