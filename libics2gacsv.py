@@ -13,60 +13,67 @@ __doc__ = """補足:
 ソースコードに加えて別途 README.txt および misc/TECH-MEMO.txt　参照ください。
 
 *Cangelog:
-2025/9/24: Version:1.0 (公開終了)
+** 2025/9/24: Version:1.0 (公開終了)
 初版公開
 
-2025/9/25: Version:1.1 (公開終了)
+** 2025/9/25: Version:1.1 (公開終了)
 
-変数名等でicalとicsが混ざってたので、icsに統一。
+- 用語統一
+  変数名等でicalとicsが混ざってたので、icsに統一。
 
-2025/9/26: Version:1.2 (公開終了)
+** 2025/9/26: Version:1.2 (公開終了)
 (内部メモ:subversion revision 2070, フォルダv1.2)
 
-CSVの改行コードの扱いが悪く無駄な空行が入るのを改善。生成される改行コー
-ドについては misc/TECH-MEMO.txt　参照ください。
+- CSVの改行コードの扱いが悪く無駄な空行が入るのを改善。生成される改行
+  コードについては misc/TECH-MEMO.txt　参照ください。
 
-CSVでダブルクオートで囲まれた文字列の最後に改行が空白があった場合除去
-するコードを追加。
+- CSVでダブルクオートで囲まれた文字列の最後に改行が空白があった場合除
+  去するコードを追加。
 
-出力文字コードがShiftJISの時にUTF-8からShiftJISに変換する作業に失敗し
-た時のエスケープ手段がstdoutに出力した時とファイルに出力した時で異なっ
-たので、統一。
+- 出力文字コードがShiftJISの時にUTF-8からShiftJISに変換する作業に失敗
+  した時のエスケープ手段がstdoutに出力した時とファイルに出力した時で異なっ
+  たので、統一。
 
-macOS 13.7.8/Intel/日本語環境動作確認しました。
+- macOS 13.7.8/Intel/日本語環境動作確認しました。
 
-ライブラリのバージョン管理用の変数を追加しています。
+- ライブラリのバージョン管理用の変数を追加しています。
 
-その他用語の統一など行ってます。
+- その他用語の統一など行ってます。
 
-2025/9/30: Version:1.3 (非公開)
+** 2025/9/30: Version:1.3 (非公開)
 (内部メモ:subversion revision 2079, フォルダv1.3)
 
-上書スケジュール(RECURRENCE-ID)へ限定対応。細かいRECURRENCE-ID命令には
-対応していない。挙動がおかしい場合はオプション「-w」で無効化された命令
-をCSVに出力するようにして欲しい。
+- 上書スケジュール(RECURRENCE-ID)へ限定対応。細かいRECURRENCE-ID命令に
+  は対応していない。挙動がおかしい場合はオプション「-w」で無効化された
+  命令をCSVに出力するようにして欲しい。
 
-上書スケジュール対応のため、CSVに出力する前に一度バッファリングを行う
-ように変更。
+- 上書スケジュール(RECURRENCE-ID命令)の処理を無効にするオプション「-x」
+  を追加。
 
-CSVに変更したの特殊な値を定義
-- 「(N/A)」: 指定の要素がVEVENTに無かった。SUMMARY/DESCRIPTONのみ。
-   カレンダーアプリにより、上記要素が無い場合、下記の挙動がある。
-    要素を未定義とする場合は「(N/A)」が入る。
-　  改行をいれる場合は空行が入る。
+- 上書スケジュール対応のため、CSVに出力する前に一度バッファリングを行
+うように変更。
 
-- 「((REFERENCE DATA DOES NOT EXIST))」: 滅多にないはずだが、
+- CSVに出力時の特殊な値を定義
+-- 「(N/A)」: 指定の要素がVEVENTに無かった。SUMMARY/DESCRIPTONのみ。
+   ICSアプリにより、上記要素が無い場合、下記の挙動がある。
+
+    要素を未定義とする場合: 「(N/A)」が入る。
+　  改行をいれる場合: 空行が入る。
+
+-- 「((REFERENCE DATA DOES NOT EXIST))」: 滅多にないはずだが、
  RECURRENCE-IDで上書をするVEVENTにはSUMMARY/DESCRIPTONが無い場合がある。
  基のVEVENTからコピーする処理を行っているが、基のVEVENTが見つからなかっ
  た。
 
-- 「Hidden: 」オプション「-w」を指定した時のみ。
-   RECURRENCE-IDで上書をした基のVEVENTを「Hidden: 」を付けて出力する。
+-- 「Hidden: 」オプション「-w」を指定した時のみ。
 
-暗にTimeZoneはJSTを想定しているコードに 「*DEPEND ON JST*」という印を
-つけた。(把握している分のみ)
+  RECURRENCE-IDで上書をした基のVEVENTのSUMMARYに「Hidden: 」を付けて出
+  力する。
 
-2025/12/10: Version:1.4(非公開)
+- 暗にTimeZoneとしてJSTを想定しているコードに 「*DEPEND ON JST*」とい
+  う印をつけた。(把握している分のみ)
+
+** 2025/12/10: Version:1.4(非公開)
 (内部メモ:subversion revision 2100, フォルダv1.4。間違えてv1.4版の
 「libics2gacsv.py」を更新してしまったので2105で差し戻しを行っている。
 なので、「libics2gacsv.py」は現在2105だが、2100と同じファイルのはず)
@@ -118,15 +125,22 @@ CSVに変更したの特殊な値を定義
    UNTILの時刻はGMTで記載されていることがあります。そのため、文脈によっ
    てはTimeZone情報が必須となります。
 
-- マニュアル「DOWNLOAD-Outlook-ICS.pdf」加筆。
+   複数定義されている場合、TimeZoneの指定を行うオプション「-T」を追加。
 
-- サポートOSからAlmalinux8.10を削除しました。OS標準のPythonが3.6のため。
-  依存しているライブラリvobjectがPython3.8以降対応になります。
+- マニュアル「DOWNLOAD-Outlook-ICS.pdf」加筆。
 
 - macOS(Intel)の動作確認環境が無くなったため、サポートOSから削除
 - macOS 26.0.1/ARM/日本語環境をサポートOSに追加。
 
-2025/12/XX: Version:2.0 (公開版)
+- Pythonのサポートバージョンを3.9以降に修正。
+  Python3.9はすでにEOLのため本来なら3.10以上にしたいが
+  macOSの標準Pythonが3.9なので3.9以上としています。。
+
+- サポートOSからAlmalinux8.10を削除しました。
+  OS標準のPythonが3.6のため。ただしOS標準パッケージにPython3.11が含ま
+  れるため、インストールすれば、動作可能。
+
+** 2025/12/XX: Version:2.0 (公開版)
 (内部メモ:subversion revision 未定, フォルダv2.0)
 
 - 公開用にversion打ち直し。
@@ -134,6 +148,11 @@ CSVに変更したの特殊な値を定義
 - マニュアル「DOWNLOAD-Outlook-ICS.pdf」を削除して、Qiitaに移動。
   https://qiita.com/qiitamatumoto/items/24343d860ccc065b4cc8
 
+- Ubuntuのサポートバージョンを22.04LTSから24.04LTSに変更。
+  上記は誤記修正になります。開発用に使っていた環境を22.04と誤認してい
+  たため。リリース版公開に合わせて再確認を行ったところ24.04でした。
+
+- コード内の各種コメントの精査。
 
 *Known bugs:
 
@@ -143,13 +162,13 @@ CSVに変更したの特殊な値を定義
 上書スケジュール(RECURRENCE-ID)で上書きされる元のスケジュールが1999年
 以前もしくは2100年以降だと動作しない。
 
-繰り返し命令でRDATEというのがあるらしいが、私の環境では生成されないの
-で、未対応。ICSに含まれる場合は例外を送出します。
+繰り返し命令でRDATEというのがあるらしいが、手元のICSのアプリでは生成さ
+れないので、未対応。ICSに含まれる場合は例外を送出します。
 
 (未調査)サマータイムの切り替えがあるTimeZoneの場合、サマータイムの前後
 で1日の長さが23時間もしくは25時間の場合はおそらく正常に動作しない。
 
-Teamsの会議インフォーメーションの削除はフォーマットが変わったら無効です。
+Teamsの会議インフォーメーションの削除はフォーマットが変わったら無効。
 2025年9月のフォーマットを元に削除を行います。
 
 ICSの各要素になにも入ってないというのを示すのに"N/A"という文字列を使っ
@@ -221,9 +240,15 @@ def format_check_timerange(timerange: int) -> bool:
 ###
 def is_collect_timerange(ics_time, timerange: int)->bool:
     """
+    引数で渡した時刻ics_timeがCSVへの出力対象か判断します。
+
     引数:
-    ics_time: datetime.datetime型もしくはdatetime.date型
-    timerange: CSVの出力範囲を指定するtimerangeの値。
+       ics_time: datetime.datetime型もしくはdatetime.date型
+       timerange: CSVの出力範囲を指定するtimerangeの値。
+
+    返り値:
+       出力対象ならTrue, それ以外はFalse
+
     """
     #print(f"DEBUG: timerange = {timerange}")
     #print(f"DEBUG: ics_time.year = {ics_time.year}")
@@ -240,6 +265,12 @@ def is_collect_timerange(ics_time, timerange: int)->bool:
 def guess_timerange(FILENAME: str):
     """
 ファイル名をもとにCSVが出力する期間の推測を行います。
+    引数:
+       str: ファイル名
+
+    返り値:
+       推測したCSV出力期間。推測に失敗した場合はNoneを返します。
+
 """
     if re.search("all", FILENAME):
         return 0
@@ -255,11 +286,6 @@ def guess_timerange(FILENAME: str):
 
 #########################################################################
 # 時間関係のis関数
-### 関数中のコメント参照
-flag_csv_remove_timezone = True
-flag_add_am12_time = False
-flag_remove_am12_time = False
-#
 ###
 def is_aware(d) -> bool:
     """datetime オブジェクトが aware(timezoneあり) かどうかを判定する"""
@@ -327,6 +353,8 @@ G_OVERRIDE_TIMEZONE = None
 # 推測した値を保存。
 __GUESS_TIMEZONE = None # 値は文字列ではない。TimeZoneオブジェクト
 __flag_init_guess_timezone = False
+#
+#
 def init_guess_timezone(cal_tz: dateutil.tz.tz.tzical, override_timezone: str = None):
     """TimeZoneを推測する関数の初期化"""
     global __GUESS_TIMEZONE
@@ -455,13 +483,6 @@ def convert_localtime(d, exit_none=True, exit_native=False):
 flag_rrule_bugfix = True
 
 ###
-def concat_ics_date(h: str, t: list) -> str:
-    """
-    分解したICSのアイテムを再結合します。
-"""
-    return h+":"+",".join(t)
-
-###
 def find_ics_data(data: list, key: str, stop=True) -> int:
     """
     文字列型で渡されたVEVENTのデータからkeyで指示された
@@ -475,30 +496,12 @@ def find_ics_data(data: list, key: str, stop=True) -> int:
     return -1
 
 ###
-def bug_fix_pre_check_dtstart_and_dtend(start: str, end: str) -> bool:
-    """
-    DTSTART/DTENDに時刻情報が無い/TimeZoneが無い場合のみ処理する。
-    OK: 「DTSTART:20250912」-> True
-    NG: 「DTSTART:20250912T123344」-> False
-    NG: 「DTSTART;TZID...」-> False
-    """
-    if re.search(r'[^\d]20[\d]{6}T', start) or re.search('TZID', start):
-        return False
-
-    if re.search(r'[^\d]20[\d]{6}T', end) or re.search('TZID', end):
-        raise RuntimeError(f"ERROR: DTSTARTとDTENDの書式が異なる(本来DTSTARTで検出されるべき) DTSTART={start},DTEND={end}")
-
-    return True
-
-###
 def bug_fix_exdate_aux(data: list) -> list:
     """
 bug_fix_rruleの補助関数1
 
 BEGIN:VEVENTからEND:VEVENTの間のデータをSTRING型のlistで渡して、
 EXDATE関連を修正する。
-
-処理の流れはbug_fix_recurrence_id_auxと同じなので、修正時は両方修正する。
 
 """
     flag_exdate = find_ics_data(data, 'EXDATE')
@@ -532,8 +535,14 @@ def bug_fix_rrule(data: str) -> str:
     """EXDATE関連のbugfix。ICSのファイルをすべて読み込んだ
 string型のdataを渡して、修正して返却する。
 
-一部のカレンダーアプリケーションが生成するRRULEのEXDATEのバグを回避するため、
-vObjectの関数にICSを読み込ませる前に修正作業を行います。
+RRULEのEXDATEが下記形式だとライブラリvobject-0.99では例外を
+送出します。
+
+  EXDATE:20251128
+
+本関数は、下記形式に修正します。
+
+  EXDATE;VALUE=DATE:20251128
 
 バグの詳細については misc/TECH-MEMO.txt 参照ください。
 
@@ -599,7 +608,11 @@ vObjectの関数にICSを読み込ませる前に修正作業を行います。
 
 ##########################################################################
 # CSVに出力する時の各種処理関数
-
+#
+flag_csv_remove_timezone = True
+flag_add_am12_time = False
+flag_remove_am12_time = False
+#
 ###
 def ics_time_to_csv(ics_parts, rrule_start):
     """返り値:
@@ -721,7 +734,6 @@ def ics_time_to_csv(ics_parts, rrule_start):
         print(f"DEBUG: end = {end}", file=sys.stderr)
         print(f"DEBUG: type(end) = {type(end)}", file=sys.stderr)
 
-
     s_d = "N/A"
     s_t = "N/A"
     e_d = "N/A"
@@ -764,7 +776,7 @@ def ics_time_to_csv(ics_parts, rrule_start):
 # ICSのsummaryの分割を試みる。
 flag_split_summary = True
 
-#松元用の予定の選択肢を追加
+# 作者用(松元)の予定の選択肢を追加
 flag_matumoto_modify = False
 #
 def split_garoon_style_summary(summary: str):
@@ -901,10 +913,6 @@ flag_support_recurrence_id = True
 # 基のスケジュールを隠す:True
 # 基のスケジュールを表示する: False. 基のスケジュールのSummaryに"Hidden: "と追加します。
 flag_override_recurrence_id = True
-
-# VERSION1.3内部版にあった、recurrence_idのバグを再現する。
-# これを有効にしないと、recurrence_idのエラー検出コードがほぼ動かない。
-flag_enable_recurrence_id_bug = False
 
 # CSVの出力の日付ソートを行う(True)。しない(False)
 flag_output_sort = True
@@ -1066,9 +1074,6 @@ def vobject2csv(calendar: vobject.base.Component, timerange: int):
 
             # ICSのRRULE命令が未使用ならそのまま出力する。
             if rrule is None:
-                if flag_enable_recurrence_id_bug:
-                    if not is_collect_timerange(dtstart, timerange):
-                        continue
                 csv_buffer.append(buff_pre + buff_aft)
 
                 if flag_support_recurrence_id and (not recurrence_id is None):
@@ -1129,10 +1134,6 @@ def vobject2csv(calendar: vobject.base.Component, timerange: int):
 
                 if G_DEBUG_UID == uid:
                     print(f"STEP3: s   = {s}", file=sys.stderr)
-
-                if flag_enable_recurrence_id_bug:
-                    if not is_collect_timerange(s, timerange):
-                        continue
 
                 if G_DEBUG_UID == uid:
                     print("STEP4: PASS(timerange)", file=sys.stderr)
