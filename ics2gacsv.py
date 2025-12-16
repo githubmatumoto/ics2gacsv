@@ -159,8 +159,8 @@ __doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと
 
 ########################################
 
-def myhelp():
-    help(EXEC_FILENAME)
+def __myhelp(fname):
+    help(fname)
     help("libics2gacsv")
     sys.exit()
 
@@ -173,8 +173,8 @@ if __name__ == '__main__':
     #CSVを出力する期間指定。
     TIMERANGE=0
 
-    EXEC_FILENAME=os.path.basename(__file__)
-    EXEC_FILENAME = re.sub(r'\.py$', "", EXEC_FILENAME)
+    exec_filename = os.path.basename(__file__)
+    exec_filename = re.sub(r'\.py$', "", exec_filename)
     opts, argv = getopt.getopt(sys.argv[1:], 'ubtsogdpmrwxhT:')
 
     try:
@@ -207,7 +207,7 @@ if __name__ == '__main__':
             elif o == "-T":
                 libics2gacsv.G_OVERRIDE_TIMEZONE=a
             elif o == "-h":
-                myhelp()
+                __myhelp(exec_filename)
 
         if(len(argv)) < 3:
             raise ValueError("ERROR: 引数が足りません。")
