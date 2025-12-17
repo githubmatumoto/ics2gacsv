@@ -110,6 +110,7 @@ ICSをCSVに変換するコマンドは下記の形式になります。
 
   $ python3 ics2gacsv.py 期間 入力ICSファイル 出力CSVファイル
 
+実行例:
 ソフトウエアを展開したフォルダにICSファイルをcalendar.icsという名前
 で置いてください。
 
@@ -119,8 +120,6 @@ CSVに出力する「期間」は年4桁と数字2桁で指定してください
 下記の実行例ではICSファイル「calendar.ics」に含まれる「2025年9月分」の
 スケジュールをCSV形式に変換しCSVファイル「schedules202509.csv」に出力
 します。
-
-実行例:
 
   $ cd "ソフトウエアを展開したフォルダ"
   $ python3 ics2gacsv.py 202509 calendar.ics schedules202509.csv
@@ -167,19 +166,17 @@ Linux,macOS用: Shellスクリプト
 
 *ICSとCSVの要素の対応について
 
-ICSとCSVの要素の対応についてはフォルダmiscに置いてある
+ICSとCSVの要素の対応については下記の記事を参照ください。
 
-   TECH-MEMO.txt
-
-を参照ください。
+  https://qiita.com/qiitamatumoto/items/82b4c49df68162d942e1
 
 *Known bugs
 
-既知のバグがいろいろあります。フォルダmiscに置いてある
+既知のバグがいろいろあります。
 
-    TECH-MEMO.txt
+下記の記事を参照ください。
 
-を参照ください。
+  https://qiita.com/qiitamatumoto/items/82b4c49df68162d942e1
 
 特に、業務で使う場合は充分な事前テストをお願いします。ほぼ同等のスケ
 ジュールをWeb版OutlookとCybozu Garoonに記載し、比較調査お願いします。

@@ -10,7 +10,10 @@ import dateutil
 import vobject
 
 __doc__ = """補足:
-ソースコードに加えて別途 README.txt および misc/TECH-MEMO.txt　参照ください。
+ソースコードに加えて別途 README.txt および下記の記事を参照ください。
+
+  https://qiita.com/qiitamatumoto/items/82b4c49df68162d942e1
+
 
 *Cangelog:
 ** 2025/9/24: Version:1.0 (公開終了)
@@ -25,7 +28,10 @@ __doc__ = """補足:
 (内部メモ:subversion revision 2070, フォルダv1.2)
 
 - CSVの改行コードの扱いが悪く無駄な空行が入るのを改善。生成される改行
-  コードについては misc/TECH-MEMO.txt　参照ください。
+  コードについては下記の記事を参照ください。
+
+  https://qiita.com/qiitamatumoto/items/82b4c49df68162d942e1
+
 
 - CSVでダブルクオートで囲まれた文字列の最後に改行が空白があった場合除
   去するコードを追加。
@@ -267,6 +273,7 @@ def is_collect_timerange(ics_time, timerange: int)->bool:
 def guess_timerange(FILENAME: str):
     """
 ファイル名をもとにCSVが出力する期間の推測を行います。
+
     引数:
        str: ファイル名
 
@@ -290,7 +297,10 @@ def guess_timerange(FILENAME: str):
 # 時間関係のis関数
 ###
 def is_aware(d) -> bool:
-    """datetime オブジェクトが aware(timezoneあり) かどうかを判定する"""
+    """
+    引数で渡した datetime オブジェクトd が aware(timezoneあり) かどうかを判定する
+"""
+
     # Pythonマニュアルより:
     # date 型のオブジェクトは常に naive です。
     if type(d) is datetime.date:
@@ -313,13 +323,18 @@ def is_aware(d) -> bool:
 
 ###
 def is_native(d) -> bool:
-    """datetime オブジェクトが native(timezoneなし) かどうかを判定する"""
+    """
+    引数で渡した datetime オブジェクトd が native(timezoneなし) かどうかを判定する
+
+"""
     return not is_aware(d)
 
 ###
 def is_am12(t) -> bool:
     """
-    時/分/秒の時刻情報があり、深夜12時"00:00:00"ならTrue
+    引数で渡した datetime オブジェクトt に 時/分/秒の時刻情報があり、
+    深夜12時"00:00:00"ならTrue
+
 """
     if not type(t) is datetime.datetime:
         raise ValueError(f"ERROR: 想定外の型が渡されました。{type(t)}")
@@ -327,7 +342,7 @@ def is_am12(t) -> bool:
 ###
 def hava_time(t) -> bool:
     """
-    時刻情報があるかないか。
+    引数で渡した datetime オブジェクトt に 時刻情報があるかないか。
 
     MEMO: pylintに isinstance() を使うように指示されたが、
     なぜか動かなくなったので、もとに戻した
@@ -358,7 +373,13 @@ __flag_init_guess_timezone = False
 #
 #
 def init_guess_timezone(cal_tz: dateutil.tz.tz.tzical, override_timezone: str = None):
-    """TimeZoneを推測する関数の初期化"""
+    """
+    TimeZoneを推測する関数の初期化
+
+    制御変数:
+    G_OVERRIDE_TIMEZONE:ただし ics2csv()で使ってます。
+
+"""
     global __GUESS_TIMEZONE
     global __flag_init_guess_timezone
 
@@ -413,7 +434,10 @@ def init_guess_timezone(cal_tz: dateutil.tz.tz.tzical, override_timezone: str = 
     #
 
 def guess_timezone():
-    """TimeZoneを推測する。事前にinit_guess_timezone()で初期化する。"""
+    """
+    TimeZoneを推測する。事前にinit_guess_timezone()で初期化する必要あり。
+
+"""
     if not __flag_init_guess_timezone:
         raise ValueError("ERROR: 初期化されていません")
 
@@ -428,8 +452,14 @@ def guess_timezone():
 def convert_native2aware(d) -> datetime.datetime:
     """
     RFC5545ではfloating timeという概念があるdatetimeのnative timeとほぼ同等。
-    nativeな(datetime.datetimedate,datetime.date)をawareなdatetimeに変換する。
+
+    引数で渡したdatetimeオブジェクトdはnativeな
+    (datetime.datetimedate or datetime.date)とする。
+
+    引数dをawareなdatetimeに変換する。
+
     時刻情報が無い日付のみであるdatetime.date型を渡された時は0時0分0秒とする。
+
 """
     #print(f"DEBUG(conver_aware/pre):{d}", file=sys.stderr)
     #print(f"DEBUG type(d) = {type(d)}", file=sys.stderr)
@@ -455,17 +485,21 @@ def convert_native2aware(d) -> datetime.datetime:
 
 def convert_localtime(d, exit_none=True, exit_native=False):
     """
-    TimeZone情報があれば、ローカルタイムに変換する。
+
+    引数で渡したdatetimeオブジェクトdに TimeZone情報があれば、ローカルタイ
+    ムに変換する。
+
     TimeZone情報がなければ、何もしない。
 
     exit_none: Noneが渡された時の挙動。
-               True: raiseを渡して停止。
+               True: 例外を送出。
                False : Noneを返す。
 
     exit_native: Timezoneがないnative timeを渡された時の挙動。
-               True: raiseを渡して停止。
+               True: 例外を送出。
                False : なにもせずに渡された時刻を返す。
-"""
+
+    """
     if d is None:
         if exit_none:
             raise RuntimeError("ERROR: 引数にNoneが渡されました")
@@ -487,7 +521,7 @@ flag_rrule_bugfix = True
 ###
 def find_ics_data(data: list, key: str, stop=True) -> int:
     """
-    文字列型で渡されたVEVENTのデータからkeyで指示された
+    文字列型で渡されたVEVENTのデータdataからkeyで指示された
     要素がある行を探します。stop=Trueの場合は例外を送出します。
 """
     for i, d in enumerate(data):
@@ -546,7 +580,10 @@ RRULEのEXDATEが下記形式だとライブラリvobject-0.99では例外を
 
   EXDATE;VALUE=DATE:20251128
 
-バグの詳細については misc/TECH-MEMO.txt 参照ください。
+バグの詳細については下記の記事を参照ください。
+
+  https://qiita.com/qiitamatumoto/items/82b4c49df68162d942e1
+
 
     """
     flag_debug = False
