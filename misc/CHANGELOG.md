@@ -42,7 +42,7 @@
 
 - CSVに出力時の特殊な値を定義
 
-「(N/A)」: 指定の要素がVEVENTに無かった。SUMMARY/DESCRIPTONのみ。
+-- 「(N/A)」: 指定の要素がVEVENTに無かった。SUMMARY/DESCRIPTONのみ。
    ICSアプリにより、上記要素が無い場合、下記の挙動がある。
 
 ```
