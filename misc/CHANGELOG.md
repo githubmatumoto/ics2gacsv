@@ -42,11 +42,13 @@
 
 - CSVに出力時の特殊な値を定義
 
--- 「(N/A)」: 指定の要素がVEVENTに無かった。SUMMARY/DESCRIPTONのみ。
+「(N/A)」: 指定の要素がVEVENTに無かった。SUMMARY/DESCRIPTONのみ。
    ICSアプリにより、上記要素が無い場合、下記の挙動がある。
 
-    要素を未定義とする場合: 「(N/A)」が入る。
-　  改行をいれる場合: 空行が入る。
+```
+   要素を未定義とする場合: 「(N/A)」が入る。
+   改行をいれる場合: 空行が入る。
+```
 
 -- 「((REFERENCE DATA DOES NOT EXIST))」: 滅多にないはずだが、
  RECURRENCE-IDで上書をするVEVENTにはSUMMARY/DESCRIPTONが無い場合がある。
@@ -70,15 +72,20 @@
    Windowsアプリ版の「Outlook(classic)」を「Outlook(legacy)」と誤記。
     →正しい「Outlook(classic)」に修正。
 
-  「日程」→「スケジュール」に統一。
-
-  日本語の「時間」と「時刻」の誤用→正しい日本語の意味に修正。
+```
+   「日程」→「スケジュール」に統一。
+   日本語の「時間」と「時刻」の誤用→正しい日本語の意味に修正。
+```
 
 - 概ね下記のICSファイルに対応。
+
+```
     Cybozu Garoon(Version 5.0.2)
     Web版 Outlook
     Windowsアプリ版 Outlook(classic)
-  いずれも2025年12月ごろに生成されたICSファイルの出力で確認。
+```
+
+いずれも2025年12月ごろに生成されたICSファイルの出力で確認。
 
 - 警告やメッセージはv1.3まではSTDOUTに出力してたが、STDERRに出力するよ
   うに修正。
@@ -98,17 +105,21 @@
   VTIMEZONEが無いICSファイルは「Flating Time」と呼ばれる。
   その場合、以下の情報をSTDERRに出力する。
 
+```
   "INFO: ICSデータにTimeZoneデータがありません。"
   "INFO: Floating Timeのデータです。(Ref: RFC5545, 3.3.12. TIME)"
+```
 
 - 一部ICSファイルはVTIMEZONEがにTimeZoneが2個以上定義されている。
   その場合、以下の情報をSTDERRに出力する。
 
+```
    "INFO: ICSファイルにTimzeZoneが複数定義されています。"
    "INFO: 現在定義されているTimeZone一覧: {一覧表示}"
    "INFO: TimeZoneとして1番目に定義されている[初出のTimeZone]を採用します。"
    "WARNING: 採用したTimeZoneが不適切な場合、繰返しスケジュールの最終日(UNTIL)の計算に失敗し、"
    "WARNING: スケジュールが欠落する可能性あります。不適切な場合は引数で指定してください。"
+```
 
    UNTILの時刻はGMTで記載されていることがあります。そのため、文脈によっ
    てはTimeZone情報が必須となります。
