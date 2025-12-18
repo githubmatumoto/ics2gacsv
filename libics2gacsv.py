@@ -1,5 +1,9 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
+#
+# Copyright (c) 2025 MATSUMOTO Ryuji.
+# License: Apache License 2.0
+#
 import sys
 import io
 import re
