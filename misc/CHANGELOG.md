@@ -139,8 +139,8 @@
   OS標準のPythonが3.6のため。ただしOS標準パッケージにPython3.11が含ま
   れるため、インストールすれば、動作可能。
 
-## 2025/12/XX: Version:2.0 (公開版)
-(内部メモ:subversion revision 未定, フォルダv2.0)
+## 2025/12/18: Version:2.0 (公開版)
+(内部メモ:subversion revision 2124, フォルダv2.0)
 
 - 公開用にversion打ち直し。
 
