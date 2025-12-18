@@ -166,17 +166,12 @@ Linux,macOS用: Shellスクリプト
 
 *ICSとCSVの要素の対応について
 
-ICSとCSVの要素の対応については下記の記事を参照ください。
-
-  https://qiita.com/qiitamatumoto/items/82b4c49df68162d942e1
+ICSとCSVの要素の対応についてはmisc/TECH-MEMO.txt 参照ください。
 
 *Known bugs
 
-既知のバグがいろいろあります。
+既知のバグがいろいろあります。misc/CHANGELOG.md 参照ください。
 
-下記の記事を参照ください。
-
-  https://qiita.com/qiitamatumoto/items/82b4c49df68162d942e1
 
 特に、業務で使う場合は充分な事前テストをお願いします。ほぼ同等のスケ
 ジュールをWeb版OutlookとCybozu Garoonに記載し、比較調査お願いします。
