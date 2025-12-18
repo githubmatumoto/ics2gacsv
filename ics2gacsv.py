@@ -7,47 +7,54 @@ import getopt
 import re
 import libics2gacsv
 
-__doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと同じ。
+__doc__=f"""ICS(iCalendar)をCSVに変換。CSVの出力形式はGaroonとほぼ同じ。
 
 使用方法:
    $ python3 {sys.argv[0]} [-hubstoOdpmT] 期間 入力.ics 出力.csv
 
-   例
-   $ python3 {sys.argv[0]} 202512 calendar.ics schedules.csv
+   期間を指定して出力する例:
+   $ python3 {sys.argv[0]} 202512 calendar.ics schedules202512.csv
    $ python3 {sys.argv[0]} guess calendar.ics schedules202509.csv
+   $ python3 {sys.argv[0]} all calendar.ics schedules-all.csv
+
+   文字コードをUTF-8にする例(-u):
+   $ python3 {sys.argv[0]} -u all calendar.ics schedules-utf8.csv
 
 必須引数:
   「期間」: CSVの出力年月の期間指定。有効範囲は2000年1月から2099年
-   12月まで。
+   12月まで。西暦4桁+月2桁の合計6桁の数字で指定します。
 
    例えばCSVに2025年8月分を出力する場合は「202508」と指定する。
 
    特殊な値として、「all」もしくは「0」だと全期間を変換する。
   「guessin」だと入力ファイル名から期間を推測する。
   「guess」だと出力ファイル名から期間を推測する。例えば出力ファイル名が
-  「schedules.csv」なら2025年9月と推測する。
+  「schedules202509.csv」なら2025年9月と推測する。
 
    期間指定を行った場合、月末のスケジュールで月を超えてる場合は翌月分
    も含まれます。例えば11月30日23:00に開始で12月1日02:00に終了の場合は、
    11月分に12月1日02:00終了のスケジュールが入ります。12月分には入りま
    せん。
 
-「入力.ics」: 変換元のICSファイル名を指定。「stdin」を指定すると標準入力。
-    ICSファイルは規格で文字コードがUTF-8と決まってます。そのため、必ず
-    UTF-8のICSファイルを指定してください。
+
+「入力.ics」: 変換元のICSファイル名を指定。「stdin」を指定すると標準入
+    力。ICSファイルは規格(RFC5545)で文字コードがUTF-8と決まってます。
+    そのため、必ずUTF-8のICSファイルを指定してください。
 
     ※対応ICSファイル:
        Cybozu Garoon(Version 5.0.2)
        Web版 Outlook
        Windowsアプリ版 Outlook(classic)
-       いずれも2025年9月から12月ごろに生成されたICSファイルの出力で確認。
+    いずれも2025年9月から12月ごろに生成されたICSファイルの出力で確認。
 
-「出力.csv」: 変換先のCSVファイル名を指定。「stdout」を指定すると標準出力。
-    文字コードのdefaultはShiftJIS。
+「出力.csv」: 変換先のCSVファイル名を指定。CSVの出力形式はGaroonとほぼ
+    同じ形式で出力します。「stdout」を指定すると標準出力。
+    GaroonのCSVの文字コードのdefaultはShiftJISです。
 
 オプション引数:
 
--h : ヘルプを出力する。
+-h : ヘルプを出力する。ヘルプ画面の停止はアルファベットの「q」を押して
+     ください。
 
 -u : CSV出力の文字コードをUTF-8に変更する。defaultはShiftJIS。
     Garoonの生成するCSVのデフォルトの文字列はShiftJIS
@@ -59,27 +66,42 @@ __doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと
     ※本オプションをWindows環境で使う場合はライブラリ「tzdata」をイン
     ストールしてください。
 
-以下は滅多に利用しない引数です。開発者向け。
+=====================================================================
 
--b : RRULE/EXDATEのバグフィックスを無効にする。defaultは有効。
-    ※詳細は関数bug_fix_rrule()をみよ。
+特殊なオプション引数:
 
--s : ICSのsummaryの分割を無効にする。defaultは有効。分割するとCSVの
-   「予定」/「予定詳細」がGaroonと同じ形式になる。
+以降で述べる引数は多くの場合は指定する必要は無いです。
+
+タイトル(SUMMARY)の分割関係:
+
+-s : ICSのsummaryの分割を無効にする。defaultは有効であり分割します。
+    分割するとCSVの「予定」/「予定詳細」がGaroonと同じ形式になる。
+
     ※詳細は関数split_garoon_style_summary()をみよ。
 
+-m : ICSのsummaryの分割で作者用の修正。defaultは無効。
+    ※詳細は関数split_garoon_style_summary()をみよ。
+
+時刻の表記関係:
+
+スケジュールで「終日スケジュール」関連は取扱いに細心の注意が必要です。
+詳細 misc/TECH-MEMO.txt に詳細に記載してます。
+
 -t : CSVの出力時刻にTimeZone情報を表示する。
+    ICSファイルにTimeZone情報が含まれていた場合、TimeZoneを表示する。
+    defaultでは表示しない。
 
-   default(TimeZone情報なし)/Garoonと同じ:
+    default(もしくはTimeZone情報なし):
         12:34:55
         12:34:55
 
-   オプション「-t」指定(TimeZone情報あり):
+    オプション「-t」指定(TimeZone情報あり):
         12:34:55+09:00
         12:34:55-03:00
 
     ※TimeZoneが複数定義が行われてる場合は正常に動作しない。
-    ※詳細は関数ics_time_to_csv()をみよ。
+    ※Garoonが生成するICSファイルにはTimeZone情報が無い。
+    ※詳細は関数ics_parts_to_csv_time()をみよ。
 
 -o : 終日スケジュール(時刻なし)のCSV出力形式を終日スケジュール
      内部表現(時刻あり)「0:00開始翌日0:00終了」とする。
@@ -97,7 +119,7 @@ __doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと
 
     ※オプション「-g」と比較してください。
     ※Outlook(classic)はこの出力形式になります。
-    ※詳細は関数ics_time_to_csv()をみよ。
+    ※詳細は関数ics_parts_to_csv_time()および misc/TECH-MEMO.txt をみよ。
 
 -g : CSVの終日スケジュール(時刻あり)の出力形式を
     終日スケジュール内部表現(時刻なし1)とする。
@@ -114,30 +136,29 @@ __doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと
       "2025/09/05","","2025/09/06","" (48時間の終日スケジュール)
 
     ※オプション「-g」と「-o」が同時指定された場合は「-g」が優先される。
-    ※詳細は関数ics_time_to_csv()をみよ。
+    ※詳細は関数ics_parts_to_csv_time()および misc/TECH-MEMO.txt をみよ。
 
+メモ欄(DESCRIPTION)関係:
 
 -d : ICSメモ欄(description)の4行目以降を消してCSVに出力する。
     defaultでは消さない。
 
     ※詳細は関数modify_description()をみよ。
 
--p : defaultではICSメモ欄(description)のTeamsの会議インフォメーションを消
+-p : defaultではICSメモ欄(DESCRIPTION)のTeamsの会議インフォメーションを消
      してCSVに出力する。パスワードが入ってるため。
 
-    本オプションを指定すると、本気が無効になり、Teamsの会議インフォメー
-    ションを消さない。
+    本オプションを指定すると、本機能が無効になり、Teamsの会議インフォ
+    メーションを消さない。
 
     ※詳細は関数modify_description()をみよ。
 
--m : ICSのsummaryの分割で作者用の修正。defaultは無効。
-
-    ※詳細は関数ics_time_to_csv()をみよ
-
--r : タイトル(SUMMARY)やメモ欄(description)の最後の改行や空白を除去する。
+-r : タイトル(SUMMARY)やメモ欄(DESCRIPTION)の最後の改行や空白を除去する。
     defaultでは除去しない。
 
     ※詳細は関数modify_description()をみよ。
+
+繰返しスケジュールの一部上書き(RECURRENCE_ID)関係:
 
 -w : 繰返しスケジュール(RRULE)の一部上書き(RECURRENCE_ID)を行った場合
      であっても、ICS上は上書きされる前の情報が残っている場合がある。
@@ -147,14 +168,32 @@ __doc__=f"""ICS(iCalendar)をCSVに変換する。CSVの出力形式はGaroonと
     たあとに、水曜日を修正し「昼食(外食)」とした場合、内部的には水曜日
     のスケジュールは「昼食(社食)」が残っている。
 
-    「-w」を指定すると一部修正する前のスケジュールも表示される。ただし
-     上書きを行ったスケジュールと区別するため、Summaryにprefixとして
-     「Hidden: 」が挿入される。具体的には水曜は「昼食(社食)」と
-     「Hidden: 昼食(社食)」となる。
+    「-w」を指定すると一部修正する前のスケジュールも表示する。
 
-    ※詳細はRFC5545のRECURRENCE_ID参照。
+     ただし上書きを行ったスケジュールと区別するため、Summaryにprefixと
+     して 「Hidden: 」が挿入される。
+
+     具体的には水曜は「昼食(社食)」と「Hidden: 昼食(社食)」となる。
+
+     ※詳細はRFC5545のRECURRENCE_ID参照。
 
 -x : RFC5545のRECURRENCE_ID関連の処理を一切おこなわない。
+
+バグ対策:
+
+-b : RRULE/EXDATEのバグフィックスを無効にする。defaultは有効。
+    ※詳細は関数bug_fix_rrule()および misc/TECH-MEMO.txt をみよ。
+
+=====================================================================
+
+ライセンス:
+Apache License 2.0
+
+配布元:
+{libics2gacsv.G_HAIFU_URL}
+{libics2gacsv.G_GITHUB_URL}
+
+修正履歴およびKnown bugsは misc/CHANGELOG.md 参照ください。
 """
 
 ########################################
@@ -180,7 +219,6 @@ if __name__ == '__main__':
     try:
         for o, a in opts:
             if o == "-u":
-                libics2gacsv.flag_output_sjis = False
                 libics2gacsv.G_CSV_ENCODING = "utf-8"
             elif o == "-b":
                 libics2gacsv.flag_rrule_bugfix = False

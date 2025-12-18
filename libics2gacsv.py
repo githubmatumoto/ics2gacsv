@@ -10,17 +10,21 @@ import dateutil
 import vobject
 
 G_HAIFU_URL="https://qiita.com/qiitamatumoto/items/ab9e0cb9a6da257597a4"
+G_GITHUB_URL="https://github.com/githubmatumoto/ics2gacsv"
 
 __doc__=f"""ICS to CSV コンバータ ライブラリ
 
 
 ICS to CSV コンバータ isc2gacsv.py が利用するライブラリ。
 
-配布元はこちらになります。
+ライセンス:
+Apache License 2.0
+
+配布元:
 {G_HAIFU_URL}
+{G_GITHUB_URL}
 
 修正履歴およびKnown bugsは misc/CHANGELOG.md 参照ください。
-
 """
 
 #######################################
@@ -910,13 +914,12 @@ def file2str(fname: str) -> str:
 # end of func
 
 #######################################
-#出力するCSVの文字コード
-flag_output_sjis = True
 # 試してないが、改行コードの話。
 # Ref: https://qiita.com/tatsuya-miyamoto/items/f57408064b803f55cf99
 
 # 試してないが、入力文字コードの変更はこちらが参考になる。
 # Ref: https://techblog.asahi-net.co.jp/entry/2021/10/04/162109
+#出力するCSVの文字コード
 G_CSV_ENCODING = "shift_jis"
 
 def open_csv_object(fname: str):
