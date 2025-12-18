@@ -3,7 +3,7 @@
                       インストール手順書
 
                                                             2025/9/24
-                                                (最終更新) 2025/12/12
+                                                (最終更新) 2025/12/16
 
                                                           by 松元隆二
 
@@ -21,14 +21,24 @@
 
 *確認環境
 
-- Ubuntu22.04.5LTS/日本語環境
+- Ubuntu24.04.3LTS/日本語環境
   OS付属Pythonで確認しています。
 
-  $ python --version
+  $ python3 --version
   Python 3.10.12
 
+  OS設定によりPythonのバージョンが異なる可能性ありますがPython 3.9以上
+  なら問題ないかと思います。
+
 - Windows11Pro /日本語環境
+
   MicrosoftStore版Python3.13を導入して確認しています。
+
+  https://apps.microsoft.com/detail/9pnrbtzxmb4z?hl=ja-JP&gl=JP
+  ※URLは2025年12月現在。
+
+  コマンドプロンプトで下記コマンドを実行すると、導入されているバージョ
+  ンが確認できます。
 
   > python3 --version
   Python 3.13.9
@@ -36,9 +46,8 @@
 - macOS 26.0.1/ARM/日本語環境
   (IntelMacは未対応。動作確認機材無いため)
 
-  上記のOS付属Pythonで確認しています。Pythonが入ってない場合はコマンド
-  プロンプトで「python3」と入力すると、OS標準のPythonの入手方法が表示
-  されますので、それにしたがってください。
+  Pythonが入ってない場合は「ターミナル」で「python3」と入力すると、OS
+  標準のPythonの入手方法が表示されますので、それにしたがってください。
 
   % python3 --version
   Python 3.9.6
@@ -50,17 +59,14 @@
   Python 3.6.8  (OS標準Pythonは非対応)
 
   但し、OSの特権ユーザ等に相談頂いてPython3.9以降を導入すれば恐らく動
-  作すると思います。
+  作すると思います。下記の手順になります。
 
   $ sudo dnf install python3.11
-
-  $ rpm -qf /bin/python3.11
-  python3.11-3.11.13-2.el8_10.x86_64
 
   $ python3.11 --version
   Python 3.11.13 (本ソフトウエアが対応するPython)
 
-*依存ライブラリvobjectのインストール。
+*依存ライブラリのインストール。
 
 ライブラリ vobjectを使わせていただいてます。バージョンは0.99で動作確認
 しています。本ライブラリはPython3.8以降対応になります。
@@ -71,40 +77,49 @@ Ref: https://vobject.readthedocs.io/latest/
 
 **Windows(MicrosoftStore版Python3.13)
 
-コマンドプロンプトでpython3とpip3がであることを確認ください。
+コマンドプロンプトでpython3/pip3がバージョン3.13以上であることを確認く
+ださい。
 
-  >python3 --version
+  > python3 --version
   Python 3.13.9
 
-  >pip3 --version
+  > pip3 --version
   pip 25.2 from C:\Program Files\WindowsApps\(省略)\pip (python 3.13)
 
-  >pip3 install vobject
+ライブラリのインストール。
+  > pip3 install vobject
   (メッセージ省略)
 
 成功したら下記のような表示になります。
   Successfully installed python-dateutil-2.9.0.post0 pytz-2025.2 six-1.17.0 vobject-0.9.9
 
+(オプション) 通常は不要ですが、TimeZone関係のコードを有効にするには、
+下記ライブラリを導入してください。
+
+  > pip3 install tzdate
+  (メッセージ省略)
+
 **Linux/macOSの設定
 
-Linux/macOSではvenvの設定がお勧めです。
+Linux/macOSではvenvの設定がお勧めです。前述してるがpythonのバージョン
+は3.9以上である必要があります。
 
-前述していますが、pythonのバージョンは3.9以上である必要があります。
-
-venv初期設定(コマンド名python3はOSによって異なります)
+venv初期設定
+  コマンド名「python3」はOSによって異なります
   $ python3 -m venv .ics2gacsv --prompt ics2gacsv
 
 venv有効化
   $ source ~/.ics2gacsv/bin/activate
 
+ライブラリのインストール
   $ pip3 install vobject
   (メッセージ省略)
 
 成功したら下記のような表示になります。
   Successfully installed python-dateutil-2.9.0.post0 pytz-2025.2 six-1.17.0 vobject-0.9.9
 
-※もしvobjectのバージョンが0.9.9より大きい数字になってた場合は、連絡頂
-けると幸いです。
+※もしvobjectのバージョンが0.9.9より大きい数字になってた場合は、正常に
+動作しない可能性があります。開発者まで連絡頂けると幸いです。
 
 *ics2gacsvの動作確認
 

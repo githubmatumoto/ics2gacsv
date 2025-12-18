@@ -24,7 +24,7 @@ python3 ics2gacsv.py -u -w all calendar.ics  gen-debug-w.csv
 echo "TimeZoneとしてJSTとESTを明示指定。"
 echo "明示指定のTimeZoneはTimeZoneが不明な文脈でのみ利用される"
 python3 ics2gacsv.py -u  -T"Asia/Tokyo"  all calendar.ics  gen-debug-jst.csv
-echo "以下は(おそらく)誤ったTimeZoneを指定"
+echo "以下は(おそらく)ICSが想定しているTimeZoneと異なる値を指定"
 python3 ics2gacsv.py -u  -T"US/Eastern"  all calendar.ics  gen-debug-est.csv
 
 echo "以下はRECURRENCE-IDの処理をしないため多数警告でる場合あるが、それで正常"
