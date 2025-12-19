@@ -153,7 +153,14 @@
 
 - コード内の各種コメントの精査。
 
-- 変更履歴をソースコード内から misc/CHANGELOG.md に移動。
+	- 変更履歴をソースコード内から misc/CHANGELOG.md に移動。
+
+## 2025/12/19: Version:2.1 (beta版)
+(内部メモ:subversion revision 未定, フォルダv2.1)
+- 職場の業務記録提出用のスクリプト kiroku.py 追加。
+  現時点ではlibics2gacsv.pyに更新はないため、libics2gacsv.G_VERSIONに
+ 修正はない。
+
 
 # Known bugs:
 
