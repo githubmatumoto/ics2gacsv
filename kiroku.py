@@ -13,32 +13,51 @@ import libics2gacsv
 
 __doc__=f"""ICS(iCalendar)をCSVに変換。作者の職場の業務記録提出用。
 
-使用方法:
-   $ python3 {sys.argv[0]} YoureName
+SYNOPSIS:
 
-例
-   $ python3 {sys.argv[0]} 工大太郎
+     $ python3 {sys.argv[0]} YoureName
 
-引数:
-  「YoureName」: 氏名。
+     引数: YoureName: 業務記録提出者の氏名。
 
-使い方:
-   カレントディレクトリ(フォルダ)にあるICSファイル「calendar.ics」を
-   Garoonとほぼ同じ形式のCSVに変換します。2個のCSVを出力します。
+DESCRIPTION:
 
-   CSVに出力される期間は、実行した当月と、その前の月になります。
+   1. ソフトウエアを展開したフォルダにICSファイル「calendar.ics」を置く。
 
-   もし2026年1月に実行した場合、2026年1月のCSVと一ヶ月前の2025年12月の
-   CSVを生成します。引数で指定した名前「YoureName」がファイル名の一部
-   に使われます。以下の例ではYoureNameに「工大太郎」を指定したとします。
+      最新版をダウンロードして置いてください。Outlook(Web)からダウン
+      ロードするのを勧めます。Outlook(classic)からダウンロードすると、
+      大量の個人情報が含まれます。
 
-   入力ファイル: (ファイル名変更不可)
-      calendar.ics
+   2. コマンドプロンプトで毎回必要な初期設定や確認事項の確認を行う
 
-   出力ファイル:
+     Linux/macOSは以下を実行してください。Pythonの初期化になります。
+
+     $ source ~/.ics2gacsv/bin/activate
+
+     Windowsはライブラリvobjectを導入したpythonと同じであるか確認する。
+
+     > python3 --version
+
+   3. コマンドプロンプトでソフトウエアを展開したフォルダに移動する。
+
+     $ cd "ソフトウエアを展開したフォルダ"
+
+   4. 下記コマンドを実行する。YoureNameには氏名を記載する
+
+     $ python3 {sys.argv[0]} YoureName
+
+     成功すると、CSV形式の業務記録が2個生成されます。実行した当月と、
+     その前の月になります。
+
+     例: 引数YoureNameに工大太郎を指定して2026年1月に実行すると、出力
+     ファイル名は以下になります。
+
       schedules202512工大太郎.csv
       schedules202601工大太郎.csv
 
+   5. CSVをExcelで確認し、個人のプライベートスケジュールが含まれてない
+     か確認し、必要に応じて削除を行ってください。
+
+注意事項:
 　 ※出力ファイルと同じ名前のファイルがある場合は、確認なしに上書きします。
 　　
    ※同梱されている「ics2gacsv.py」の簡易版になります。
