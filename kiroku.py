@@ -7,7 +7,9 @@
 #
 import os
 import sys
+import getopt
 import re
+import time
 import datetime
 import libics2gacsv
 
@@ -26,8 +28,9 @@ DESCRIPTION:
    1. ソフトウエアics2gacsvを展開したフォルダにICSファイルを置く。
       ファイル名は「calendar.ics」で置いてください。
 
-      Outlook(Web)からダウンロードするのを勧めます。Outlook(classic)か
-      らダウンロードすると、大量の個人情報が含まれます。
+      ICSファイルはOutlook(Web)からダウンロードするのを勧めます。
+      Outlook(classic)からダウンロードすると、大量の個人情報が含
+      まれます。
 
    2. コマンドプロンプトで毎回必要な初期設定や確認事項の確認を行う。
 
@@ -81,6 +84,8 @@ Apache License 2.0
 
 ########################################
 
+
+
 def __myhelp(fname):
     help(fname)
     sys.exit()
@@ -91,60 +96,128 @@ if __name__ == '__main__':
         print("ERROR: ファイルが古いです。最新のics2gacsv.pyとlibics2gacsv.pyをダウンロードしてください。",file=sys.stderr)
         sys.exit()
 
-    #CSVを出力する期間指定。
-    TIMERANGE=0
+    #####################################################################
+    # 入力ファイル名
+    INPUT_ICS_FILENAME="calendar.ics"
 
+    # key: 出力期間, value:出力ファイル名
+    OUTPUT_CSV_FILENAME  = {}
+    #
+    # 出力ファイルがすでに存在する場合、上書きするかの確認をするかしないか。
+    # False: 上書き確認を行う
+    # True: 上書き確認を行わない。
+    flag_overwrite= False
+
+    #####################################################################
+    # 引数解析
     exec_filename = os.path.basename(__file__)
     exec_filename = re.sub(r'\.py$', "", exec_filename)
-    if len(sys.argv) != 2:
-        __myhelp(exec_filename)
 
-    YoureName = sys.argv[1]
-    if YoureName == '-h':
-        __myhelp(exec_filename)
 
-    if (len(YoureName)) == 0:
-        print("ERROR: 何らかの理由で名前の取得に失敗しました。",file=sys.stderr)
+    opts, argv = getopt.getopt(sys.argv[1:], 'hw')
+    try:
+        for o, a in opts:
+            if o == "-w":  # 出力ファイルの上書き確認を行わない
+                flag_overwrite = True
+            elif o == "-h":
+                __myhelp(exec_filename)
+
+
+        if len(argv) != 1:
+            raise ValueError("ERROR: 引数が足りません。")
+        YoureName = argv[0]
+        if (len(YoureName)) == 0:
+            raise ValueError("ERROR: 何らかの理由で名前の取得に失敗しました。")
+
+        # ファイル名に使えない記号検出
+        # すでに同じような関数がありそうな気が若干するのだが(^_^;
+        bad_char = ['\\', '/', '[', ']', ':', '<', '>', '?', '"', "'" ,"*",'-', '@']
+        for i in list(YoureName):
+            if i.isspace():
+                raise ValueError("ERROR: 引数YoureNameに空白が含まれてます。")
+            if not i.isprintable():
+                raise ValueError("ERROR: 引数YoureNameにファイル名として使えない文字が含まれます。")
+
+            if i in bad_char:
+                raise ValueError(f"ERROR: 引数YoureNameにファイル名として使えない記号「{i}」が含まれます。")
+    except ValueError as e:
+        print("ERROR: ", e,  file=sys.stderr)
+        print("ERROR:  引数 -h でヘルプが表示されます。", file=sys.stderr)
         sys.exit()
 
-    # ファイル名に使えない記号検出
-    # すでに同じような関数がありそうな気が若干するのだが(^_^;
-    bad_char = False
-    hava_space = False
-    for i in list(YoureName):
-        if i.isspace():
-            bad_char = True
-            hava_space = True
-        if not i.isprintable():
-            bad_char = True
-        if i == '\\' or i == '/' or i == '[' or  i == ']':
-            bad_char = True
-        if i == ':' or  i == '<' or i == '>' or i == '?':
-            bad_char = True
-        if i == '"' or  i == "'" or i == "*" or i == '-':
-            bad_char = True
-    #
-
-    if bad_char :
-        print("ERROR: 引数YoureNameにファイル名として使えない文字が指定されました。", file=sys.stderr)
-        if hava_space :
-            print("ERROR: 引数YoureNameに空白が含まれてます。", file=sys.stderr)
-        print(f"ERROR: 引数YoureName = '{YoureName}'", file=sys.stderr)
-
-        sys.exit()
-    #
+    #####################################################################
+    # 出力ファイルに書き込み権限があるか確認。
 
     dt = datetime.datetime.now()
 
     if dt.month > 1:
-        TIMERANGE = dt.year * 100 + (dt.month-1)
+        t = dt.year * 100 + (dt.month-1)
     else:
-        TIMERANGE = (dt.year-1) * 100 + 12
-    OUTPUT_CSV_FILENAME = 'schedules%06d%s.csv' % (TIMERANGE, YoureName)
-    libics2gacsv.ics2csv("calendar.ics", OUTPUT_CSV_FILENAME, TIMERANGE)
+        t = (dt.year-1) * 100 + 12
+    OUTPUT_CSV_FILENAME[t] = f'./schedules{t:06}{YoureName}.csv'
 
-    TIMERANGE = dt.year * 100 + dt.month
-    OUTPUT_CSV_FILENAME = 'schedules%06d%s.csv' % (TIMERANGE, YoureName)
-    libics2gacsv.ics2csv("calendar.ics", OUTPUT_CSV_FILENAME, TIMERANGE)
+    t = dt.year * 100 + dt.month
+    OUTPUT_CSV_FILENAME[t] = f'./schedules{t:06}{YoureName}.csv'
+
+    for fout in OUTPUT_CSV_FILENAME.values():
+        if (not flag_overwrite) and os.path.exists(fout):
+            print(f"WARNING: CSVファイル 「{fout}」 がすでに存在します。")
+            print("WARNING: 上書きしますか?")
+            inp = input('WARNING: [Y]es/[N]o? >> ').lower()
+            if not (inp in ('y', 'yes')):
+                print("WARNING: 処理を中断します。")
+                sys.exit()
+
+    for fout in OUTPUT_CSV_FILENAME.values():
+        with open(fout, 'w',  encoding='utf-8') as f:
+            f.write("WRITE TEST")
+        os.remove(fout)
+
+    #####################################################################
+    # 入力ファイルの存在確認
+    if not os.path.exists(INPUT_ICS_FILENAME):
+        print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」が存在しません", file=sys.stderr)
+        sys.exit()
+
+    #####################################################################
+    # 入力ファイルの日付確認。日付が古いファイルはファイル名が間違えたり
+    # 最新のファイルが「calendar(2).ics」とかスペルミスの「calender.ics」
+    # とかになってる可能性あるため。
+
+    stat_info = os.stat(INPUT_ICS_FILENAME)
+    current_time = time.time()
+    diff_time = current_time - stat_info.st_mtime
+
+    #print("mtime=", stat_info.st_mtime)
+    #print("curre=", current_time)
+    #print("diff =", diff_time)
+
+    # 日付が未来。プログラム停止。
+    if diff_time <= -60:
+        print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が未来です。", file=sys.stderr)
+        print("ERROR: パソコンの時計が正しくない可能性があります。", file=sys.stderr)
+        sys.exit()
+
+    # 日付が3時間以上前。プログラム停止。
+    if diff_time >= 60*60*3:
+        h = int(diff_time/3600 + 0.5)
+        print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が古いです。", file=sys.stderr)
+        print(f"ERROR: {h}時間前のファイルです。最新のファイルをダウンロードしてください。", file=sys.stderr)
+        print("ERROR: 最新の場合はファイル名が間違えてないか確認ください。", file=sys.stderr)
+        sys.exit()
+
+    old_m = 15
+    # 日付が15分以上前。警告のみ。
+    if diff_time >= (old_m*60):
+        print(f"WARNING: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が古いです。", file=sys.stderr)
+        print(f"WARNING: {old_m}分以上前のファイルです。もし{old_m}分以内にダウンロードした場合は、", file=sys.stderr)
+        print("WARNING: ファイル名が間違えてないか確認ください。", file=sys.stderr)
+
+    #####################################################################
+    # CSV変換
+    # TODO: 単発で動かした場合と本プログラムで差分がないか確認
+    # TODO: Windowsで確認。とくにファイルの日付確認。
+    for key, value in OUTPUT_CSV_FILENAME.items():
+        libics2gacsv.ics2csv(INPUT_ICS_FILENAME, value, key)
 
 #End of main()
