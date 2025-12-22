@@ -155,12 +155,21 @@
 
 	- 変更履歴をソースコード内から misc/CHANGELOG.md に移動。
 
-## 2025/12/19: Version:2.1 (beta版)
+## 2025/12/20: Version:2.1 (beta版)
 (内部メモ:subversion revision 未定, フォルダv2.1)
-- 職場の業務記録提出用のスクリプト kiroku.py 追加。
-  現時点ではlibics2gacsv.pyに更新はないため、libics2gacsv.G_VERSIONに
- 修正はない。
 
+- 職場の業務記録提出用のスクリプト kiroku.py 追加。ファイル名を決
+  め打ちで生成する。
+
+- SUMMARYに業務番号を記載する、拡張追加。
+```
+  libics2gacsv.py:
+  関数 modify_enhanced_gyoumunum()　追加
+  制御変数 flag_enhanced_gyoumunum 追加
+
+  ics2gacsv.py:
+  引数 -z 追加(flag_enhanced_gyoumunum=True)
+```
 
 # Known bugs:
 
@@ -183,3 +192,6 @@
 - ICSの各要素になにも入ってないというのを示すのに"N/A"という文字列を使っ
 ています。SUMMARYやDESCRIPTIONに最初から"N/A"と入っていた場合は誤動作
 する。
+
+- 業務番号を暗に4桁と想定している。5桁以上なら下記関数の正規表現を修正する。
+   modify_enhanced_gyoumunum()
