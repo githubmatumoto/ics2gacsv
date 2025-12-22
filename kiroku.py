@@ -117,6 +117,10 @@ if __name__ == '__main__':
     # False: 上書き確認を行う
     # True: 上書き確認を行わない。
     flag_overwrite= False
+    # 入力ファイルの日付確認、古いファイルへの警告を行うかいなか。
+    # False:  日付確認を行わない。
+    # True: 日付確認を行う
+    flag_old_file_check = True
 
     #####################################################################
     # 引数解析
@@ -127,8 +131,9 @@ if __name__ == '__main__':
     opts, argv = getopt.getopt(sys.argv[1:], 'hw')
     try:
         for o, a in opts:
-            if o == "-w":  # 出力ファイルの上書き確認を行わない
+            if o == "-w":  # 出力ファイルの上書き確認/入力ファイルの日付確認を行わない
                 flag_overwrite = True
+                flag_old_file_check = False
             elif o == "-h":
                 __myhelp(exec_filename)
 
@@ -137,7 +142,7 @@ if __name__ == '__main__':
             raise ValueError("ERROR: 引数が足りません。")
         YoureName = argv[0]
         if (len(YoureName)) == 0:
-            raise ValueError("ERROR: 何らかの理由で名前の取得に失敗しました。")
+            raise ValueError("ERROR: 何らかの理由で引数YoureNameの取得に失敗しました。")
 
         # ファイル名に使えない記号検出
         # すでに同じような関数がありそうな気が若干するのだが(^_^;
@@ -196,34 +201,35 @@ if __name__ == '__main__':
     # 最新のファイルが「calendar(2).ics」とかスペルミスの「calender.ics」
     # とかになってる可能性あるため。
 
-    stat_info = os.stat(INPUT_ICS_FILENAME)
-    current_time = time.time()
-    diff_time = current_time - stat_info.st_mtime
+    if flag_old_file_check:
+        stat_info = os.stat(INPUT_ICS_FILENAME)
+        current_time = time.time()
+        diff_time = current_time - stat_info.st_mtime
 
-    #print("mtime=", stat_info.st_mtime)
-    #print("curre=", current_time)
-    #print("diff =", diff_time)
+        #print("mtime=", stat_info.st_mtime)
+        #print("curre=", current_time)
+        #print("diff =", diff_time)
 
-    # 日付が未来。プログラム停止。
-    if diff_time <= -60:
-        print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が未来です。", file=sys.stderr)
-        print("ERROR: パソコンの時計が正しくない可能性があります。", file=sys.stderr)
-        sys.exit()
+        # 日付が未来。プログラム停止。
+        if diff_time <= -60:
+            print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が未来です。", file=sys.stderr)
+            print("ERROR: パソコンの時計が正しくない可能性があります。", file=sys.stderr)
+            sys.exit()
 
-    # 日付が3時間以上前。プログラム停止。
-    if diff_time >= 60*60*3:
-        h = int(diff_time/3600 + 0.5)
-        print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が古いです。", file=sys.stderr)
-        print(f"ERROR: {h}時間前のファイルです。最新のファイルをダウンロードしてください。", file=sys.stderr)
-        print("ERROR: 最新の場合はファイル名が間違えてないか確認ください。", file=sys.stderr)
-        sys.exit()
+            # 日付が3時間以上前。プログラム停止。
+        if diff_time >= 60*60*3:
+            h = int(diff_time/3600 + 0.5)
+            print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が古いです。", file=sys.stderr)
+            print(f"ERROR: {h}時間前のファイルです。最新のファイルをダウンロードしてください。", file=sys.stderr)
+            print("ERROR: 最新の場合はファイル名が間違えてないか確認ください。", file=sys.stderr)
+            sys.exit()
 
-    old_m = 15
-    # 日付が15分以上前。警告のみ。
-    if diff_time >= (old_m*60):
-        print(f"WARNING: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が古いです。", file=sys.stderr)
-        print(f"WARNING: {old_m}分以上前のファイルです。もし{old_m}分以内にダウンロードした場合は、", file=sys.stderr)
-        print("WARNING: ファイル名が間違えてないか確認ください。", file=sys.stderr)
+        old_m = 15
+        # 日付が15分以上前。警告のみ。
+        if diff_time >= (old_m*60):
+            print(f"WARNING: 入力元のICSファイル「{INPUT_ICS_FILENAME}」の日付が古いです。", file=sys.stderr)
+            print(f"WARNING: {old_m}分以上前のファイルです。もし{old_m}分以内にダウンロードした場合は、", file=sys.stderr)
+            print("WARNING: ファイル名が間違えてないか確認ください。", file=sys.stderr)
 
     #####################################################################
     # CSV変換
