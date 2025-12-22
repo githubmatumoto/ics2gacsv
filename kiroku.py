@@ -22,15 +22,25 @@ SYNOPSIS:
      引数: YoureName: 業務記録提出者の氏名。
 
 DESCRIPTION:
-   0. 初めて利用する場合は、README.txt および INSTALL.txt を参照して、
-      ライブラリの初期設定を行ってください。
+
+   ソフトウエアics2gacsvに同梱されるスクリプトの一つです。作者の職場の
+   業務記録提出用のスクリプトです。入力/出力ファイル名が決め打ちになっ
+   ています。
+
+   本プログラムを初めて利用する場合は、README.txt および INSTALL.txt
+   を参照して、ソフトウエアics2gacsvの初期設定を行ってください。
+
+   以下は初期設定を行った後の手順書になります。
 
    1. ソフトウエアics2gacsvを展開したフォルダにICSファイルを置く。
       ファイル名は「calendar.ics」で置いてください。
 
+      ICSファイルの取扱いには注意ください。特にTeams会議のパスワードが
+      含まれます。
+
       ICSファイルはOutlook(Web)からダウンロードするのを勧めます。
-      Outlook(classic)からダウンロードすると、大量の個人情報が含
-      まれます。
+      Outlook(classic)からダウンロードすると、Teams会議参加者のメール
+      アドレスが含まれます。漏洩すると個人情報の流出となります。
 
    2. コマンドプロンプトで毎回必要な初期設定や確認事項の確認を行う。
 
@@ -146,7 +156,7 @@ if __name__ == '__main__':
         sys.exit()
 
     #####################################################################
-    # 出力ファイルに書き込み権限があるか確認。
+    # 出力ファイル名生成
 
     dt = datetime.datetime.now()
 
@@ -159,6 +169,8 @@ if __name__ == '__main__':
     t = dt.year * 100 + dt.month
     OUTPUT_CSV_FILENAME[t] = f'./schedules{t:06}{YoureName}.csv'
 
+    #####################################################################
+    # 出力ファイルに書き込み権限があるか確認。
     for fout in OUTPUT_CSV_FILENAME.values():
         if (not flag_overwrite) and os.path.exists(fout):
             print(f"WARNING: CSVファイル 「{fout}」 がすでに存在します。")
