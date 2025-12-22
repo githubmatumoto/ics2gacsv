@@ -102,7 +102,7 @@ def __myhelp(fname):
 
 if __name__ == '__main__':
 
-    if libics2gacsv.G_VERSION != "2.0":
+    if libics2gacsv.G_VERSION != "2.1":
         print("ERROR: ファイルが古いです。最新のics2gacsv.pyとlibics2gacsv.pyをダウンロードしてください。",file=sys.stderr)
         sys.exit()
 
@@ -159,6 +159,10 @@ if __name__ == '__main__':
         print("ERROR: ", e,  file=sys.stderr)
         print("ERROR:  引数 -h でヘルプが表示されます。", file=sys.stderr)
         sys.exit()
+
+    #####################################################################
+    #　業務記録番号の拡張仕様。
+    libics2gacsv.flag_enhanced_gyoumunum = True
 
     #####################################################################
     # 出力ファイル名生成

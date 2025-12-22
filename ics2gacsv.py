@@ -78,13 +78,19 @@ __doc__=f"""ICS(iCalendar)をCSVに変換。CSVの出力形式はGaroonとほぼ
 
 タイトル(SUMMARY)の分割関係:
 
--s : ICSのsummaryの分割を無効にする。defaultは有効であり分割します。
+-s : ICSのSUMMARYの分割を無効にする。defaultは有効であり分割します。
     分割するとCSVの「予定」/「予定詳細」がGaroonと同じ形式になる。
 
     ※詳細は関数split_garoon_style_summary()をみよ。
 
--m : ICSのsummaryの分割で作者用の修正。defaultは無効。
+-m : ICSのSUMMARYの分割で作者用の修正。defaultは無効。
     ※詳細は関数split_garoon_style_summary()をみよ。
+
+-z: ICSのSUMMARY分割で、Summaryの最後尾に「%数字」もしくは「g数字」
+    があった場合は、業務番号と見なし、DESCRIPTIONと置き換える。
+    ※v2.1で追加。
+    ※仕様検討中。詳細は関数modify_enhanced_gyoumunum()をみよ。
+
 
 時刻の表記関係:
 
@@ -209,7 +215,7 @@ def __myhelp(fname):
 
 if __name__ == '__main__':
 
-    if libics2gacsv.G_VERSION != "2.0":
+    if libics2gacsv.G_VERSION != "2.1":
         print("ERROR: ファイルが古いです。最新のics2gacsv.pyとlibics2gacsv.pyをダウンロードしてください。",file=sys.stderr)
         sys.exit()
 
@@ -218,7 +224,7 @@ if __name__ == '__main__':
 
     exec_filename = os.path.basename(__file__)
     exec_filename = re.sub(r'\.py$', "", exec_filename)
-    opts, argv = getopt.getopt(sys.argv[1:], 'ubtsogdpmrwxhT:')
+    opts, argv = getopt.getopt(sys.argv[1:], 'ubtsogdpmrwxhzT:')
 
     try:
         for o, a in opts:
@@ -246,6 +252,8 @@ if __name__ == '__main__':
                 libics2gacsv.flag_override_recurrence_id = False
             elif o == "-x":
                 libics2gacsv.flag_support_recurrence_id = False
+            elif o == "-z":
+                libics2gacsv.flag_enhanced_gyoumunum = True
             elif o == "-T":
                 libics2gacsv.G_OVERRIDE_TIMEZONE=a
             elif o == "-h":

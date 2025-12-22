@@ -32,7 +32,7 @@ Apache License 2.0
 """
 
 #######################################
-G_VERSION = "2.0"
+G_VERSION = "2.1"
 #########################################################################
 def get_ics_val(ics_parts, name, default_val=None, exit_none=True):
     """
@@ -786,6 +786,67 @@ def modify_description(description: str) -> str:
     return description
 
 ###
+# 業務番号記入の拡張仕様
+def modify_enhanced_gyoumunum(description: str, summary: str) -> str:
+    """
+     Summary分割で、Summaryの最後尾に「-数字」もしくは「g数字」があった場合は、
+    業務番号と見なし、DESCRIPTIONと置き換える。
+
+    ※仕様検討中。
+    区切り文字の検討
+    「&」「#」はxml生成時に別の意味が出るので不可
+    「:」はGaroon形式に変換するときの「会議」「出張」とかの区切りと区別出来ないので不可
+    「,」「;」はGaroonのICS生成時のバグの引き金になるので不可。
+    「-」は半角でいれてくれればいいが全角だと似たようなのが多数あり面倒。ハイフン、マイナスなどいろいろ。
+    「$」はお金を書いてるのと区別つかない。
+    「/」は松元が部屋番号をいれるのに使ってた。
+    「%」このあたり？
+    Known bugs:
+    業務番号を4桁の数字としている。5桁以上なら要修正
+"""
+    # 業務番号記入の拡張仕様: SUMMARYの「g」と「%」
+    m = re.search(r"[ｇg%％]([0-9０-９]{1,4})$", summary)
+    if m is None:
+        return None
+    # 全角数字を半角にするため、0を足してる。
+    #print(m.groups())
+    #print(m.group())
+    gyoumunum = str(int(m.groups()[0])+0)
+
+    # re.matchは1行めのみ検索する。2行目は見ない。
+
+    #print(f"DEBUG: found enhance gyoumunum = {gyoumunum}")
+
+    # 1行めに業務番号と考えられる数字が記載されていた場合は置き換えない。
+    # 注意 "数字" + "空白"でもマッチする。
+    # 正規表現注意「全角空白+半角空白+タブ」
+    m1 = re.search(r"^[0-9０-９]{1,4}[　 \t]*$", description)
+    m2 = re.search(r"^[0-9０-９]{1,4}[　 \t]*[\t\n]+", description)
+    if m1 or m2:
+        return None
+
+    # 1行目に"(N/A)"があった場合は、業務番号と置き換える。「(N/A)」の後ろに改行があったら行が減る。
+    # CHANGELOG.mdにあるように「(N/A)」は特殊文字なのでDESCRIPTIONには明示的に書くと誤動作する。
+
+    m1 = re.match(r"\(N\/A\)", description)
+    #　空文字。(原則発生しないはずだが念のため)
+    m2 = len(description) == 0
+
+    if m1 or m2:
+        return gyoumunum
+
+    #1行目に空行があった場合はそこに数字を差し込む。行数は増えない。
+    # 正規表現注意「全角空白+半角空白+タブ」
+    m = re.match(r"[　 \t]*[\r\n]", description)
+    if m :
+        #「全角空白+半角空白+タブ」
+        return re.sub("^[　 \t]*", gyoumunum, description)
+
+    #それ以外は業務番号を行頭に差し込む。行数が1行増える。
+    return gyoumunum + "\n" + description
+
+
+###
 #各要素の最後の改行と空白をすべて取り除く。
 flag_remove_tail_cr = False
 
@@ -852,6 +913,10 @@ flag_override_recurrence_id = True
 # CSVの出力の日付ソートを行う(True)。しない(False)
 flag_output_sort = True
 
+# 業務記録の拡張フォーマットを使うか
+# True: 使う
+# False: 使わない
+flag_enhanced_gyoumunum = False
 # 上書スケジュール(RECURRENCE-ID)対応のためバッファリングを行う。
 # CSVの要素は4番目から。冒頭にUIDとDTSTARTとを差し込む。
 # ["UID", "DTSTART", "RECURRENCE-ID", "開始日","開始時刻","終了日","終了時刻","予定","予定詳細","メモ"]
@@ -1331,6 +1396,7 @@ def ics2csv(ics_file_path: str, csv_file_path: str, timerange: int = 0) -> None:
             if csv_buffer[i][j] is None:
                 csv_buffer[i][j] = "(N/A)"
 
+
     # 日付でsortする. index sort.
     # csv_indexのG_CSV_B_OFFSET番目以降の要素は文字列なので、次でよい。
     # BUG: 月と日が2桁でないとバグる。また日の順番が y/d/mだったらNG.
@@ -1359,6 +1425,16 @@ def ics2csv(ics_file_path: str, csv_file_path: str, timerange: int = 0) -> None:
             continue
         if not is_collect_timerange(csv_buffer[i][G_CSV_H_DTSTART], timerange):
             continue
+
+        # 業務番号記入の拡張仕様
+        # SUMMARYに記載された業務番号をDESCRIPTIONに差し込む。
+        if flag_enhanced_gyoumunum:
+            summ = csv_buffer[i][G_CSV_B_OFFSET + G_CSV_SUMMARY_T]
+            des = csv_buffer[i][G_CSV_B_OFFSET + G_CSV_DESCRIPTION]
+            des = modify_enhanced_gyoumunum(des, summ)
+            if des:
+                csv_buffer[i][G_CSV_B_OFFSET + G_CSV_DESCRIPTION] = des
+
         csv_writer.writerow(csv_buffer[i][G_CSV_B_OFFSET:])
 
     if not G_DEBUG_UID is None:
