@@ -83,14 +83,21 @@ __doc__=f"""ICS(iCalendar)をCSVに変換。CSVの出力形式はGaroonとほぼ
 
     ※詳細は関数split_garoon_style_summary()をみよ。
 
--m : ICSのSUMMARYの分割で作者用の修正。defaultは無効。
-    ※詳細は関数split_garoon_style_summary()をみよ。
+作者の職場向けの拡張機能:
 
--z: ICSのSUMMARY分割で、Summaryの最後尾に「%数字」もしくは「g数字」
-    があった場合は、業務番号と見なし、DESCRIPTIONと置き換える。
+-m : ICSのSUMMARYの分割で拡張。defaultは無効。
+    ※詳細は関数split_garoon_style_summary()と引数-mの解析コード
+     をみよ。
+
+-z: SUMMARYの最後尾に「%数字」もしくは「g数字」があった場合は、業務番
+    号と見なし、メモ欄(description)に業務番号を書き込む。defaultは無効。
+
+    メモ欄(description)に最初から業務番号と考えられる数字の記載があっ
+    た場合はSUMMARYに記載された業務番号を優先し、メモ欄(description)
+    の業務番号を書き換える。
     ※v2.1で追加。
-    ※仕様検討中。詳細は関数modify_enhanced_gyoumunum()をみよ。
-
+    ※仕様検討中。
+    ※詳細は関数 modify_enhanced_gyoumunum()をみよ。
 
 時刻の表記関係:
 
@@ -245,7 +252,10 @@ if __name__ == '__main__':
             elif o == "-p":
                 libics2gacsv.flag_remove_teams_infomation = False
             elif o == "-m":
-                libics2gacsv.flag_matumoto_modify = True
+                libics2gacsv.flag_split_summary_enhance = True
+                # 2025/10/7: add 'TEST': ICS生成のテスト用の選択肢。
+                h = ['TODO', 'MEMO', '授業', 'TEST']
+                libics2gacsv.G_SPLIT_SUMMARY_ENHANCE = h
             elif o == "-r":
                 libics2gacsv.flag_remove_tail_cr = True
             elif o == "-w":
@@ -297,5 +307,6 @@ if __name__ == '__main__':
 
     #デバグ用のコード。代入したUIDのログが実行中に表示される。
     #libics2gacsv.G_DEBUG_UID="UIDを指定する"
+    #libics2gacsv.G_DEBUG_UID="040000008200E00074C5B7101A82E008000000008C5A5095A25EDC01000000000000000010000000A7B6130342276D45A3C4FCD5D06C1B98"
     libics2gacsv.ics2csv(INPUT_ICS_FILENAME, OUTPUT_CSV_FILENAME, TIMERANGE)
 #End of main()
