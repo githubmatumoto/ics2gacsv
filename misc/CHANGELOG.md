@@ -183,7 +183,7 @@ libics2gacsv.py:
 def modify_reference_id_data()
    誤:     if csv_buffer[i][k] is None:
    正:     if (csv_buffer[i][k] is None) or (outlook_bugfix and csv_buffer[i][k] == UNREF):
-	```
+```
 
 - 修正split_garoon_style_summary
 ```
@@ -194,7 +194,7 @@ def modify_reference_id_data()
   具体的な追加項目を今まで関数内にハードコーディングしてたが、isc2gacsv.pyで
   下記変数に代入する形に修正
   G_SPLIT_SUMMARY_ENHANCE
-	```
+```
 
 # Known bugs:
 
