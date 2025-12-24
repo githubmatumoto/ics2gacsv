@@ -41,6 +41,7 @@
 うように変更。
 
 - CSVに出力時の特殊な値を定義
+  ここで述べる値をカレンダーアプリに直接記載すると誤動作する。
 
 -- 「(N/A)」: 指定の要素がVEVENTに無かった。SUMMARY/DESCRIPTONのみ。
    ICSアプリにより、上記要素が無い場合、下記の挙動がある。
@@ -50,7 +51,7 @@
    改行をいれる場合: 空行が入る。
 ```
 
--- 「((REFERENCE DATA DOES NOT EXIST))」: 滅多にないはずだが、
+-- 「(REFERENCE DATA DOES NOT EXIST)」: 滅多にないはずだが、
  RECURRENCE-IDで上書をするVEVENTにはSUMMARY/DESCRIPTONが無い場合がある。
  基のVEVENTからコピーする処理を行っているが、基のVEVENTが見つからなかっ
  た。
@@ -171,6 +172,30 @@
   引数 -z 追加(flag_enhanced_gyoumunum=True)
 ```
 
+- 上書スケジュール(RECURRENCE-ID)のバグ対応。
+
+Outlookが生成したICSファイルでもとの繰返し(RRULE)スケジュールのDESCRIPTIONが未定義"(N/A)"であり、
+上書きスケジュールのDESCRIPTIONが未定義"(N/A)"であった場合は、
+誤ってDESCRIPTIONに"(REFERENCE DATA DOES NOT EXIST)"が入いるようになった。
+
+```
+libics2gacsv.py:
+def modify_reference_id_data()
+   誤:     if csv_buffer[i][k] is None:
+   正:     if (csv_buffer[i][k] is None) or (outlook_bugfix and csv_buffer[i][k] == UNREF):
+	```
+
+- 修正split_garoon_style_summary
+```
+  変数名修正
+  旧:flag_matumoto_modify
+
+  新: flag_split_summary_enhance
+  具体的な追加項目を今まで関数内にハードコーディングしてたが、isc2gacsv.pyで
+  下記変数に代入する形に修正
+  G_SPLIT_SUMMARY_ENHANCE
+	```
+
 # Known bugs:
 
 - 西暦を判断する基準の正規表現が「[^\\d]20[\\d]{6}」などになってる
@@ -189,9 +214,14 @@
 - Teamsの会議インフォーメーションの削除はフォーマットが変わったら無効。
 2025年9月のフォーマットを元に削除を行います。
 
-- ICSの各要素になにも入ってないというのを示すのに"N/A"という文字列を使っ
-ています。SUMMARYやDESCRIPTIONに最初から"N/A"と入っていた場合は誤動作
+- ICSの各要素になにも入ってないというのを示すのに"(N/A)"という文字列を使っ
+ています。SUMMARYやDESCRIPTIONに最初から"(N/A)"と入っていた場合は誤動作
 する。
 
+- ICSの上書スケジュール(RECURRENCE-ID)繰返し要素の処理に
+     "(REFERENCE DATA DOES NOT EXIST)"
+という文字列を使っています。SUMMARYやDESCRIPTIONに最初から上記が入って
+場合は誤動作する。
+
 - 業務番号を暗に4桁と想定している。5桁以上なら下記関数の正規表現を修正する。
-   modify_enhanced_gyoumunum()
+	modify_enhanced_gyoumunum()
