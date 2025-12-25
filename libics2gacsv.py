@@ -796,7 +796,7 @@ def modify_enhanced_gyoumunum(description: str, summary: str) -> str:
     め、謎の記述は極力避けるべきである。タイトル欄に謎の数字をいれるの
     は好ましくない。
 
-    しかしながら、メモ欄にはTeamsのパスワードなどセキュリティ情報がか
+    しかしながら、メモ欄にはTeams会議のパスワードなどセキュリティ情報がか
     かれる可能性があり、業務番号の摘出のためとはいえ、不必要に見える状
     態にするのは好ましくない。
 
@@ -933,6 +933,14 @@ def modify_enhanced_gyoumunum(description: str, summary: str) -> str:
     #print(m.group())
     gyoumunum = str(int(m.groups()[0])+0)
 
+    if (int(gyoumunum) < 0) or (int(gyoumunum) > 9999):
+        # 負の数は業務番号としては無効
+        # 5桁の業務番号は無効(正規表現的にないはずだが。)
+        raise RuntimeError("ERROR: Summaryの業務番号の取得に失敗しました")
+
+    if re.search(r"\r", description, flags=re.DOTALL):
+        raise RuntimeError("ERROR: 改行の正規化が行われてません。「\\n」のみ有効です。")
+
     # re.matchは1行めのみ検索する。2行目は見ない。
     #print(f"DEBUG: found enhance gyoumunum = {gyoumunum}")
 
@@ -955,7 +963,10 @@ def modify_enhanced_gyoumunum(description: str, summary: str) -> str:
     # 行数は変化しない。
     m1 = re.search(r"^[　 \t]*[0-9０-９]{1,4}[　 \t]*\n.*", description, flags=re.DOTALL)
     if m1:
-        return re.sub(r"^[　 \t]*[0-9０-９]{1,4}[　 \t]*", gyoumunum, description)
+        ret = re.sub(r"^[　 \t]*[0-9０-９]{1,4}[　 \t]*", gyoumunum, description)
+        if ret is None:
+            raise RuntimeError("ERROR: 正規表現の想定外のエラー")
+        return ret
 
     # Description-Type3:
     # 行数は変化しない。
@@ -1184,8 +1195,10 @@ def vobject2csv(calendar: vobject.base.Component, timerange: int):
             if (not rrule is None) and (not recurrence_id is None):
                 raise ValueError("ERROR: ICSデータ不整合: 同一VEVENTにRECURRENCE-IDとRRULEがあります。")
 
-            # ICSのRDATE命令はGaroonやWeb/Outlookで出現例を作れなかったため、
-            # 未対応。
+            # TODO: RDATE対応作業
+            # RDATEはOutlook(classic)でICSファイル出力時の詳細情報の設定で
+            # 「詳細情報の一部」を選んだ時に生成される事があります。
+            #
             if get_ics_val(component, 'rdate', "N/A") != "N/A":
                 raise RuntimeError("ERROR: 本プログラム未実装のICS命令RDATEが使われています。")
             #

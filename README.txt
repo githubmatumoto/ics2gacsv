@@ -3,7 +3,7 @@
 
 
                                                             2025/9/24
-                                                (最終更新) 2025/12/22
+                                                (最終更新) 2025/12/25
 
                                                           by 松元隆二
 
@@ -26,12 +26,15 @@ ICS形式については下記を参照ください。
 
        Cybozu Garoon(Version 5.0.2)
        Web版 Outlook
-       Windowsアプリ版 Outlook(classic)
+       Windowsアプリ版 Outlook(classic) (限定対応)
 
 いずれも2025年12月ごろに生成されたICSファイルの出力で確認。
 
 出力するCSVは、グループウエアCybozu Garoon(Version 5.0.2)で作成したス
 ケジュール表が生成するCSVとほぼ同じ形式にのみ対応しています。
+
+2025/12/25追記: Outlook(classic)で作成したICSファイルはics2gacsvの対応
+が不完全でした。生成に失敗する事があります。CHANGELOG.md参照ください。
 
 **開発動機
 

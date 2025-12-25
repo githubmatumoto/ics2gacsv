@@ -42,6 +42,10 @@ DESCRIPTION:
       Outlook(classic)からダウンロードすると、Teams会議参加者のメール
       アドレスが含まれます。漏洩すると個人情報の流出となります。
 
+      追記:Outlook(classic)で生成したICSファイルは正常に処理ができない
+      事例を把握しました。Outlook(classic)で生成したICSは利用できません
+      CHANGELOG.md参照ください。
+
    2. コマンドプロンプトで毎回必要な初期設定や確認事項の確認を行う。
 
      Linux/macOSは以下を実行してください。Pythonの初期化になります。
@@ -140,11 +144,11 @@ if __name__ == '__main__':
     exec_filename = os.path.basename(__file__)
     exec_filename = re.sub(r'\.py$', "", exec_filename)
 
-
-    opts, argv = getopt.getopt(sys.argv[1:], 'hw')
+    # オプションは極力ics2gacsvと重ならないようにする
+    opts, argv = getopt.getopt(sys.argv[1:], 'hW')
     try:
         for o, a in opts:
-            if o == "-w":  # 出力ファイルの上書き確認/入力ファイルの日付確認を行わない
+            if o == "-W":  # 出力ファイルの上書き確認/入力ファイルの日付確認を行わない
                 flag_overwrite = True
                 flag_old_file_check = False
             elif o == "-h":
