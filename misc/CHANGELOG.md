@@ -225,3 +225,8 @@ def modify_reference_id_data()
 
 - 業務番号を暗に4桁と想定している。5桁以上なら下記関数の正規表現を修正する。
 	modify_enhanced_gyoumunum()
+
+- (2025/12/25追記)Windowsアプリ版 Outlook(classic)で生成したICSファイルで一部条件
+でICSのRDATE命令が使われるようです。RDATEが生成されたICSファイルは
+変換できません。把握した範囲では、ICSファイル出力時の詳細情報の設定で
+「詳細情報の一部」を選んだ時に生成される事があります。
