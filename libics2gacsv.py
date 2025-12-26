@@ -32,7 +32,7 @@ Apache License 2.0
 """
 
 #######################################
-G_VERSION = "2.0"
+G_VERSION = "2.1"
 #########################################################################
 def get_ics_val(ics_parts, name, default_val=None, exit_none=True):
     """
@@ -669,8 +669,10 @@ def ics_parts_to_csv_time(ics_parts, rrule_start) -> tuple:
 # ICSのsummaryの分割を試みる。
 flag_split_summary = True
 
-# 作者用(松元)の予定の選択肢を追加
-flag_matumoto_modify = False
+# 予定の選択肢を追加
+flag_split_summary_enhance = False
+# 追加項目。増やす場合はライブラリ呼び出し側から追加してください。
+G_SPLIT_SUMMARY_ENHANCE = []
 #
 def split_garoon_style_summary(summary: str) -> str:
     """
@@ -695,20 +697,17 @@ CSVの"予定詳細":「予定詳細」
     返り値:
     summaryを加工後返す。
 
-
    外部制御変数:
     flag_split_summary = True
-    flag_matumoto_modify = False
-
+    flag_split_summary_enhance = False
+    G_SPLIT_SUMMARY_ENHANCE
 """
     # 以下正規表現文字列になるので変な記号は入れない
-    # Garoonの選択肢を転載。他にも必要なら適時追加する。
+    # Garoonの選択肢のデフォルト。
     head = ['出張', '往訪', '来訪', '会議', '休み']
-    #松元ローカル定義。
-    # 2025/10/7: add 'TEST': ICS生成のテスト用の選択肢。
-    if flag_matumoto_modify:
-
-        head += ['TODO', 'MEMO', '授業', 'TEST']
+    #SUMMARY分割の拡張
+    if flag_split_summary_enhance:
+        head += G_SPLIT_SUMMARY_ENHANCE
     # コロンの半角。
     splitter = [':']
     # コロンの全角。
@@ -786,6 +785,210 @@ def modify_description(description: str) -> str:
     return description
 
 ###
+# 業務番号記入の拡張仕様
+def modify_enhanced_gyoumunum(description: str, summary: str) -> str:
+    """Summary分割で、Summaryの最後尾に「-数字」もしくは「g数字」があった場合は、
+    業務番号と見なし、DESCRIPTIONと置き換える。
+
+    ※仕様検討中。
+
+    スケジュールは技術部のみが使うものではなく他の教職員も使う。そのた
+    め、謎の記述は極力避けるべきである。タイトル欄に謎の数字をいれるの
+    は好ましくない。
+
+    しかしながら、メモ欄にはTeams会議のパスワードなどセキュリティ情報がか
+    かれる可能性があり、業務番号の摘出のためとはいえ、不必要に見える状
+    態にするのは好ましくない。
+
+　　そのため、目立たない形で、タイトルの最後尾に記載する案とした。
+
+    業務番号のための区切り文字の検討
+
+    「&」「#」はxml生成時に別の意味が出るので不可
+    「:」はGaroon形式に変換するときの「会議」「出張」とかの区切りと区別出来ないので不可
+    「,」「;」はGaroonのICS生成時のバグの引き金になるので不可。
+    「-」日付情報(12-31)やOS名(Windows-11)などを記載した場合誤認する
+         それを許容したとしても、常に半角でいれてくれればいいが全角だ
+         と似たようなのが多数あり面倒。全角ハイフン/全角マイナスなどい
+         ろいろ。
+    「$」はお金を書いてるのと区別つかないのと、一部プログラミング言語の変数
+         表記なのでやめた方がよいかも。
+    「/」は日付情報(12/31)などを記載した場合誤認する。また会議などの
+         部屋番号等の記述でも見られる。
+    「%」このあたりで試行する。
+         誤用が無いとは言いきれないが。
+
+    Known bugs:
+    業務番号を4桁の数字としている。5桁以上なら要修正
+
+
+    デバグコード:
+      debug_modify_enhanced_gyoumunum.py
+
+    処理の流れ:
+
+    1 Summary: 文字列
+      Summaryに業務番号がなければ、Descriptionは一切さわらない。無変。
+
+    2. Summary: abcd %数字A or
+       Summary: abcd g数字A
+
+    SUMMARYに業務番号があった場合は、SUMMARY側が優先されて、
+    DESCRIPTIONの変換を行う。
+
+    Description 変換規則
+     方針1:行数の変化は可能な限り避ける。
+     方針2:1行めにある業務番号とSUMMARYの業務番号が異なれば置き換える。
+     方針3:1行めに空行があれば業務番号と置き換える。
+     方針4:1行目に業務番号と空行以外がある場合は、行数を増やす。
+     方針5:1行めに「可」「急」があれば、先頭に空行を1行追加して、1行めに業務番号を書き込む
+     方針6:1行めに「可」「急」以外があれば、先頭に空行2行追加して、1行めに業務番号を書き込む
+
+
+    以下
+     Pre: DESCRIPTION変換前
+     Aft: DESCRIPTION変換後
+     数字A: SUMMARYに記載があった業務番号
+     数字B: DESCRIPTIONに記載があった業務番号
+
+    "(N/A)": CHANGELOG.mdにも記載したが、DESCRIPTIONが未定義という事をしめす
+         特殊な文字。改行のみがあった場合は未定義ではなく""が入る。
+
+    (空白文字): TAB, 全角SPACE (改行は含まない。)
+    (改行文字): \\n  (改行の正規化をしているので\\rは出ないはず。)
+    「\\s」: 改行を含む空白文字(SPACE, TAB, 全角SPACE, \\n)
+    「.」: 任意の一文字
+
+    Description-Type1-1:
+    注: 行数が減る可能正あり。
+    -(Pre)-------
+    (空白文字)*数字B\\s*
+    -------------
+    -(Aft)-------
+    数字A
+    -------------
+
+    Description-Type1-2:
+    注:"(N/A)"の後ろの文字は削除。
+    注: 行数が減る可能正あり。
+    -(Pre)-------
+    (N/A).*
+    -------------
+    -(Aft)-------
+    数字A
+    -------------
+
+    Description-Type1-3:
+    注: 行数が減る可能正あり。
+    -(Pre)-------
+    \\s*
+    -------------
+    -(Aft)-------
+    数字A
+    -------------
+
+    Description-Type2:
+    行数は変化しない。
+    -(Pre)-------
+    (空白文字)*数字B(空白文字)*(改行文字).*
+    -------------
+    -(Aft)-------
+    数字A(改行文字).*
+    -------------
+
+    Description-Type3:
+    行数は変化しない。
+    -(Pre)-------
+    (空白文字)*(改行文字).*
+    -------------
+    -(Aft)-------
+    数字A*(改行文字).*
+    -------------
+
+    Description-Type4:
+    行数が1行増える
+    -(Pre)-------
+    [可|急](空白文字)*(改行文字).*
+    -------------
+    -(Aft)-------
+    (空白文字)*数字A(改行文字)[可|急](空白文字)*(改行文字).*
+    -------------
+
+    Description-Type5:
+    行数が2行増える
+    -(Pre)-------
+    .*
+    -------------
+    -(Aft)-------
+    数字A(改行文字)(改行文字).*
+    -------------
+
+    """
+    # 業務番号記入の拡張仕様: SUMMARYの「g」と「%」
+    m = re.search(r"[ｇg%％]([0-9０-９]{1,4})[　 \t]*$", summary)
+    if m is None:
+        return None
+    # 全角数字を半角にするため、0を足してる。
+    #print(m.groups())
+    #print(m.group())
+    gyoumunum = str(int(m.groups()[0])+0)
+
+    if (int(gyoumunum) < 0) or (int(gyoumunum) > 9999):
+        # 負の数は業務番号としては無効
+        # 5桁の業務番号は無効(正規表現的にないはずだが。)
+        raise RuntimeError("ERROR: Summaryの業務番号の取得に失敗しました")
+
+    if re.search(r"\r", description, flags=re.DOTALL):
+        raise RuntimeError("ERROR: 改行の正規化が行われてません。「\\n」のみ有効です。")
+
+    # re.matchは1行めのみ検索する。2行目は見ない。
+    #print(f"DEBUG: found enhance gyoumunum = {gyoumunum}")
+
+    # Description-Type1-1:
+    # 正規表現の空白のところに全角スペース入ってる
+    # 改行の正規化をしているので改行に「\r」は出ないはず。
+    m1 = re.search(r"^[　 \t]*[0-9０-９]{1,4}[　 \t\n]*$", description, flags=re.DOTALL)
+
+    # Description-Type1-2:
+    # 注:"(N/A)"の後ろの文字は無視。
+    m2 = re.search(r"^\(N\/A\).*$", description, flags=re.DOTALL)
+
+    # Description-Type1-3:
+    # 空白と改行のみ。
+    m3 = re.search(r"^[　 \t\r\n]*$", description, flags=re.DOTALL)
+    if m1 or m2 or m3:
+        return gyoumunum
+
+    # Description-Type2:
+    # 行数は変化しない。
+    m1 = re.search(r"^[　 \t]*[0-9０-９]{1,4}[　 \t]*\n.*", description, flags=re.DOTALL)
+    if m1:
+        ret = re.sub(r"^[　 \t]*[0-9０-９]{1,4}[　 \t]*", gyoumunum, description)
+        if ret is None:
+            raise RuntimeError("ERROR: 正規表現の想定外のエラー")
+        return ret
+
+    # Description-Type3:
+    # 行数は変化しない。
+    m1 = re.search(r"^[　 \t]*\n.*", description, flags=re.DOTALL)
+    if m1:
+        return re.sub(r"^[　 \t]*", gyoumunum, description)
+    # Description-Type4:
+    # 冒頭が「可急」の場合は業務番号を行頭に差し込む。行数が1行増える。
+    lines = description.splitlines()
+    m1 = re.search(r"^[　 \t]*[可急][　 \t]*$", lines[0])
+    if m1:
+        if re.search("可", lines[0]):
+            lines[0] = "可"
+        if re.search("急", lines[0]):
+            lines[0] = "急"
+        return gyoumunum + "\n" + "\n".join(lines) + "\n"
+
+    # Description-Type5:
+    #それ以外は業務番号を行頭に差し込み改行を2個差し込む。行数が2行増える。
+    return gyoumunum + "\n\n" + description
+
+###
 #各要素の最後の改行と空白をすべて取り除く。
 flag_remove_tail_cr = False
 
@@ -852,6 +1055,10 @@ flag_override_recurrence_id = True
 # CSVの出力の日付ソートを行う(True)。しない(False)
 flag_output_sort = True
 
+# 業務記録の拡張フォーマットを使うか
+# True: 使う
+# False: 使わない
+flag_enhanced_gyoumunum = False
 # 上書スケジュール(RECURRENCE-ID)対応のためバッファリングを行う。
 # CSVの要素は4番目から。冒頭にUIDとDTSTARTとを差し込む。
 # ["UID", "DTSTART", "RECURRENCE-ID", "開始日","開始時刻","終了日","終了時刻","予定","予定詳細","メモ"]
@@ -988,8 +1195,10 @@ def vobject2csv(calendar: vobject.base.Component, timerange: int):
             if (not rrule is None) and (not recurrence_id is None):
                 raise ValueError("ERROR: ICSデータ不整合: 同一VEVENTにRECURRENCE-IDとRRULEがあります。")
 
-            # ICSのRDATE命令はGaroonやWeb/Outlookで出現例を作れなかったため、
-            # 未対応。
+            # TODO: RDATE対応作業
+            # RDATEはOutlook(classic)でICSファイル出力時の詳細情報の設定で
+            # 「詳細情報の一部」を選んだ時に生成される事があります。
+            #
             if get_ics_val(component, 'rdate', "N/A") != "N/A":
                 raise RuntimeError("ERROR: 本プログラム未実装のICS命令RDATEが使われています。")
             #
@@ -1086,6 +1295,8 @@ def vobject2csv(calendar: vobject.base.Component, timerange: int):
 
 def modify_reference_id_data(csv_buffer: list, recurrence_id_list: dict, outlook_bugfix=False) -> int:
     """
+    TODO: 関数コメントが意味不明だから書き換える。
+
     RECURRENCE-IDで上書きするVEVENTはSUMMARYやDESCRIPTIONが未定義の場合が
     ある。復元する。なお、SUMMARYやDESCRIPTIONは各種加工が入っているので、
     csv_bufferに入ってるのを使った方がよい。
@@ -1138,9 +1349,10 @@ def modify_reference_id_data(csv_buffer: list, recurrence_id_list: dict, outlook
                         flag_found_j = j
                         break
 
+            UNREF = "(REFERENCE DATA DOES NOT EXIST)"
             org_summary_h = ""
-            org_summary_t = "(REFERENCE DATA DOES NOT EXIST)"
-            org_description = "(REFERENCE DATA DOES NOT EXIST)"
+            org_summary_t = UNREF
+            org_description = UNREF
 
             k = -1
             if flag_found_j < 0:
@@ -1163,13 +1375,13 @@ def modify_reference_id_data(csv_buffer: list, recurrence_id_list: dict, outlook
                     del recurrence_id_list[uid]
 
             k = G_CSV_B_OFFSET+G_CSV_SUMMARY_T
-            if csv_buffer[i][k] is None:
+            if (csv_buffer[i][k] is None) or (outlook_bugfix and csv_buffer[i][k] == UNREF):
                 csv_buffer[i][k] = org_summary_t
                 k = G_CSV_B_OFFSET+G_CSV_SUMMARY_H
                 csv_buffer[i][k] = org_summary_h
 
             k = G_CSV_B_OFFSET+G_CSV_DESCRIPTION
-            if csv_buffer[i][k] is None:
+            if (csv_buffer[i][k] is None) or (outlook_bugfix and csv_buffer[i][k] == UNREF):
                 csv_buffer[i][k] = org_description
 
             #end for j
@@ -1277,6 +1489,8 @@ def ics2csv(ics_file_path: str, csv_file_path: str, timerange: int = 0) -> None:
     # liics2gacsv(v1.4)では RRULEのEXDATEの記述の修正のみ。
     if flag_rrule_bugfix:
         ics_data = bug_fix_rrule(ics_data)
+    else: # 処理の都合で改行の正規化が必要
+        ics_data = "\n".join(ics_data.splitlines()) + "\n"
 
     ######################
     # 読み込んだデータstrをvobjectに変換。
@@ -1331,6 +1545,7 @@ def ics2csv(ics_file_path: str, csv_file_path: str, timerange: int = 0) -> None:
             if csv_buffer[i][j] is None:
                 csv_buffer[i][j] = "(N/A)"
 
+
     # 日付でsortする. index sort.
     # csv_indexのG_CSV_B_OFFSET番目以降の要素は文字列なので、次でよい。
     # BUG: 月と日が2桁でないとバグる。また日の順番が y/d/mだったらNG.
@@ -1359,6 +1574,16 @@ def ics2csv(ics_file_path: str, csv_file_path: str, timerange: int = 0) -> None:
             continue
         if not is_collect_timerange(csv_buffer[i][G_CSV_H_DTSTART], timerange):
             continue
+
+        # 業務番号記入の拡張仕様
+        # SUMMARYに記載された業務番号をDESCRIPTIONに差し込む。
+        if flag_enhanced_gyoumunum:
+            summ = csv_buffer[i][G_CSV_B_OFFSET + G_CSV_SUMMARY_T]
+            des = csv_buffer[i][G_CSV_B_OFFSET + G_CSV_DESCRIPTION]
+            des = modify_enhanced_gyoumunum(des, summ)
+            if des:
+                csv_buffer[i][G_CSV_B_OFFSET + G_CSV_DESCRIPTION] = des
+
         csv_writer.writerow(csv_buffer[i][G_CSV_B_OFFSET:])
 
     if not G_DEBUG_UID is None:

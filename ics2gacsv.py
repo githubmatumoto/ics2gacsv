@@ -14,7 +14,7 @@ import libics2gacsv
 __doc__=f"""ICS(iCalendar)をCSVに変換。CSVの出力形式はGaroonとほぼ同じ。
 
 使用方法:
-   $ python3 {sys.argv[0]} [-hubstoOdpmT] 期間 入力.ics 出力.csv
+   $ python3 {sys.argv[0]} [-ubtsogdpmrwxhzT:] 期間 入力.ics 出力.csv
 
    期間を指定して出力する例:
    $ python3 {sys.argv[0]} 202512 calendar.ics schedules202512.csv
@@ -78,13 +78,26 @@ __doc__=f"""ICS(iCalendar)をCSVに変換。CSVの出力形式はGaroonとほぼ
 
 タイトル(SUMMARY)の分割関係:
 
--s : ICSのsummaryの分割を無効にする。defaultは有効であり分割します。
+-s : ICSのSUMMARYの分割を無効にする。defaultは有効であり分割します。
     分割するとCSVの「予定」/「予定詳細」がGaroonと同じ形式になる。
 
     ※詳細は関数split_garoon_style_summary()をみよ。
 
--m : ICSのsummaryの分割で作者用の修正。defaultは無効。
-    ※詳細は関数split_garoon_style_summary()をみよ。
+作者の職場向けの拡張機能:
+
+-m : ICSのSUMMARYの分割で拡張。defaultは無効。
+    ※詳細は関数split_garoon_style_summary()と引数-mの解析コード
+     をみよ。
+
+-z: SUMMARYの最後尾に「%数字」もしくは「g数字」があった場合は、業務番
+    号と見なし、メモ欄(description)に業務番号を書き込む。defaultは無効。
+
+    メモ欄(description)に最初から業務番号と考えられる数字の記載があっ
+    た場合はSUMMARYに記載された業務番号を優先し、メモ欄(description)
+    の業務番号を書き換える。
+    ※v2.1で追加。
+    ※仕様検討中。
+    ※詳細は関数 modify_enhanced_gyoumunum()をみよ。
 
 時刻の表記関係:
 
@@ -209,7 +222,7 @@ def __myhelp(fname):
 
 if __name__ == '__main__':
 
-    if libics2gacsv.G_VERSION != "2.0":
+    if libics2gacsv.G_VERSION != "2.1":
         print("ERROR: ファイルが古いです。最新のics2gacsv.pyとlibics2gacsv.pyをダウンロードしてください。",file=sys.stderr)
         sys.exit()
 
@@ -218,7 +231,7 @@ if __name__ == '__main__':
 
     exec_filename = os.path.basename(__file__)
     exec_filename = re.sub(r'\.py$', "", exec_filename)
-    opts, argv = getopt.getopt(sys.argv[1:], 'ubtsogdpmrwxhT:')
+    opts, argv = getopt.getopt(sys.argv[1:], 'ubtsogdpmrwxhzT:')
 
     try:
         for o, a in opts:
@@ -239,13 +252,18 @@ if __name__ == '__main__':
             elif o == "-p":
                 libics2gacsv.flag_remove_teams_infomation = False
             elif o == "-m":
-                libics2gacsv.flag_matumoto_modify = True
+                libics2gacsv.flag_split_summary_enhance = True
+                # 2025/10/7: add 'TEST': ICS生成のテスト用の選択肢。
+                h = ['TODO', 'MEMO', '授業', 'TEST']
+                libics2gacsv.G_SPLIT_SUMMARY_ENHANCE = h
             elif o == "-r":
                 libics2gacsv.flag_remove_tail_cr = True
             elif o == "-w":
                 libics2gacsv.flag_override_recurrence_id = False
             elif o == "-x":
                 libics2gacsv.flag_support_recurrence_id = False
+            elif o == "-z":
+                libics2gacsv.flag_enhanced_gyoumunum = True
             elif o == "-T":
                 libics2gacsv.G_OVERRIDE_TIMEZONE=a
             elif o == "-h":
@@ -289,5 +307,6 @@ if __name__ == '__main__':
 
     #デバグ用のコード。代入したUIDのログが実行中に表示される。
     #libics2gacsv.G_DEBUG_UID="UIDを指定する"
+    #libics2gacsv.G_DEBUG_UID="040000008200E00074C5B7101A82E008000000008C5A5095A25EDC01000000000000000010000000A7B6130342276D45A3C4FCD5D06C1B98"
     libics2gacsv.ics2csv(INPUT_ICS_FILENAME, OUTPUT_CSV_FILENAME, TIMERANGE)
 #End of main()
