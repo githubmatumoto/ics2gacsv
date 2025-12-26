@@ -14,7 +14,7 @@ import libics2gacsv
 __doc__=f"""ICS(iCalendar)をCSVに変換。CSVの出力形式はGaroonとほぼ同じ。
 
 使用方法:
-   $ python3 {sys.argv[0]} [-hubstoOdpmT] 期間 入力.ics 出力.csv
+   $ python3 {sys.argv[0]} [-ubtsogdpmrwxhzT:] 期間 入力.ics 出力.csv
 
    期間を指定して出力する例:
    $ python3 {sys.argv[0]} 202512 calendar.ics schedules202512.csv

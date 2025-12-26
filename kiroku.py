@@ -13,6 +13,10 @@ import time
 import datetime
 import libics2gacsv
 
+# 入力ファイル名
+#Outlook(Web)が生成するICSファイルの出力名
+INPUT_ICS_FILENAME="calendar.ics"
+
 __doc__=f"""ICS(iCalendar)をCSVに変換。作者の職場の業務記録提出用。
 
 SYNOPSIS:
@@ -33,7 +37,7 @@ DESCRIPTION:
    以下は初期設定を行った後の手順書になります。
 
    1. ソフトウエアics2gacsvを展開したフォルダにICSファイルを置く。
-      ファイル名は「calendar.ics」で置いてください。
+      ファイル名は「{INPUT_ICS_FILENAME}」で置いてください。
 
       ICSファイルの取扱いには注意ください。特にTeams会議のパスワードが
       含まれます。
@@ -79,12 +83,19 @@ DESCRIPTION:
 注意事項:
 
    ※同梱されている「ics2gacsv.py」の簡易版になります。
-   現在の仕様としては、下記引数が渡された挙動に加えて、
-    - 出力CSVがすでに存在する場合は確認する。
-    - 入力ICSファイルの作成日付が古い場合は警告もしくはコマンド停止になります。
+   現在の仕様としては、
 
-   $ python3 ics2gacsv.py -z calendar.ics schedules今月YoureName.csv
-   $ python3 ics2gacsv.py -z calendar.ics schedules先月YoureName.csv
+    下記引数で起動
+
+    $ python3 ics2gacsv.py -z guess {INPUT_ICS_FILENAME} schedules今月YoureName.csv
+    $ python3 ics2gacsv.py -z guess {INPUT_ICS_FILENAME} schedules先月YoureName.csv
+    ("今月"と"先月"は20yynnの6桁の数字で指定)
+
+    上記に加えて
+
+    - 出力CSVがすでに存在する場合は確認する。
+
+    - 入力ICSファイルの作成日付が古い場合は警告もしくはコマンド停止になります。
 
    ※作者の職場の業務記録提出用のため頻繁に仕様が変更になります。
 
@@ -117,9 +128,6 @@ if __name__ == '__main__':
         sys.exit()
 
     #####################################################################
-    # 入力ファイル名
-    INPUT_ICS_FILENAME="calendar.ics"
-
     # key: 出力期間, value:出力ファイル名
     OUTPUT_CSV_FILENAME  = {}
 
@@ -153,7 +161,6 @@ if __name__ == '__main__':
                 flag_old_file_check = False
             elif o == "-h":
                 __myhelp(exec_filename)
-
 
         if len(argv) != 1:
             raise ValueError("ERROR: 引数が足りません。")
@@ -192,7 +199,8 @@ if __name__ == '__main__':
     OUTPUT_CSV_FILENAME[t] = f'./schedules{t:06}{YoureName}.csv'
 
     #####################################################################
-    # 出力ファイルに書き込み権限があるか確認。
+    # 出力ファイルと同一ファイルがあるか存在確認
+
     for fout in OUTPUT_CSV_FILENAME.values():
         if (not flag_overwrite) and os.path.exists(fout):
             print(f"WARNING: CSVファイル 「{fout}」 がすでに存在します。")
@@ -202,6 +210,9 @@ if __name__ == '__main__':
                 print("WARNING: 処理を中断します。")
                 sys.exit()
 
+    #####################################################################
+    # 出力ファイルに書き込み権限があるか確認。
+
     for fout in OUTPUT_CSV_FILENAME.values():
         with open(fout, 'w',  encoding='utf-8') as f:
             f.write("WRITE TEST")
@@ -209,6 +220,7 @@ if __name__ == '__main__':
 
     #####################################################################
     # 入力ファイルの存在確認
+
     if not os.path.exists(INPUT_ICS_FILENAME):
         print(f"ERROR: 入力元のICSファイル「{INPUT_ICS_FILENAME}」が存在しません", file=sys.stderr)
         sys.exit()

@@ -3,7 +3,7 @@
                       インストール手順書
 
                                                             2025/9/24
-                                                (最終更新) 2025/12/25
+                                                (最終更新) 2025/12/26
 
                                                           by 松元隆二
 
@@ -96,7 +96,7 @@ Ref: https://vobject.readthedocs.io/latest/
 (オプション) 通常は不要ですが、TimeZone関係のコードを有効にするには、
 下記ライブラリを導入してください。
 
-  > pip3 install tzdate
+  > pip3 install tzdata
   (メッセージ省略)
 
 **Linux/macOSの設定
